@@ -29,6 +29,11 @@ RUN addgroup -g 1000 dotnet \
 RUN apk update \
   && apk --no-cache add curl procps unzip \
   && wget -qO- https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l /vsdbg
+# Pact dependencies are not included in Alpine image for contract testing
+RUN  apk --no-cache add ca-certificates wget bash \
+    && wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+    && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk \
+    && apk add glibc-2.29-r0.apk
 
 # Default to the dotnet user and run from their home folder
 USER dotnet
