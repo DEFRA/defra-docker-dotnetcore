@@ -15,6 +15,8 @@ def commitSha = ''
 def versionTag = ''
 def imageRepositoryDevelopment = ''
 def imageRepositoryProduction = ''
+def imageRepositoryDevelopmentLatest = ''
+def imageRepositoryProductionLatest = ''
 
 def abortIfNotMaster() {
   if(BRANCH_NAME == 'master') {
@@ -31,6 +33,8 @@ def setVariables() {
   versionTag = "${dockerfileVersion}-dotnet${dotnetVersion}"
   imageRepositoryDevelopment = "$registry/$imageNameDevelopment:$versionTag"
   imageRepositoryProduction = "$registry/$imageNameProduction:$versionTag"
+  imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
+  imageRepositoryProductionLatest = "$registry/$imageNameProduction"
 }
 
 def getRepoUrl() {
@@ -51,7 +55,7 @@ def updateGithubCommitStatus(message, state) {
   ])
 }
 
-def buildImage(image, target) {
+def buildImage(image, target,) {
   sh "docker build --no-cache \
     --tag $image \
     --build-arg DOTNET_VERSION=${dotnetVersion} \
@@ -80,15 +84,19 @@ node {
     }
     stage('Build development image') {
       buildImage(imageRepositoryDevelopment, 'development')
+      buildImage(imageRepositoryDevelopmentLatest, 'development')
     }
     stage('Build production image') {
       buildImage(imageRepositoryProduction, 'production')
+      buildImage(imageRepositoryProductionLatest, 'production')
     }
     stage('Push development image') {
       pushImage(imageRepositoryDevelopment)
+      pushImage(imageRepositoryDevelopmentLatest)
     }
     stage('Push production image') {
       pushImage(imageRepositoryProduction)
+      pushImage(imageRepositoryProductionLatest)
     }
     stage('Set GitHub status success') {
       updateGithubCommitStatus('Build successful', 'SUCCESS')
