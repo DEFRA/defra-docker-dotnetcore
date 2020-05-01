@@ -20,7 +20,7 @@ USER dotnet
 WORKDIR /home/dotnet
 
 # Label images to aid searching
-LABEL uk.gov.defra.dotnetcore.node-version=$NETCORE_VERSION \
+LABEL uk.gov.defra.dotnetcore.dotnet-version=$NETCORE_VERSION \
       uk.gov.defra.dotnetcore.version=$DOCKERFILE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore
 
@@ -33,7 +33,7 @@ ARG NETCORE_VERSION
 # Default the SDK image to run as development
 ENV ASPNETCORE_ENVIRONMENT=development
 
-LABEL uk.gov.defra.dotnetcore.node-version=$NETCORE_VERSION \
+LABEL uk.gov.defra.dotnetcore.dotnet-version=$NETCORE_VERSION \
       uk.gov.defra.dotnetcore.version=$DOCKERFILE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore-development
 
