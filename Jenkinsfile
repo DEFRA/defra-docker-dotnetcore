@@ -44,7 +44,7 @@ def updateGithubCommitStatus(message, state) {
   ])
 }
 
-def buildImage(image, target,) {
+def buildImage(image, target) {
   sh "docker build --no-cache \
     --tag $image \
     --build-arg NETCORE_VERSION=$dotnetVersion \
