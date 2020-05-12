@@ -1,36 +1,25 @@
 // Versioning - edit these variables to set version information
-def dockerfileVersion = '1.0.1'
-def dotnetVersion = '3.1'
+dockerfileVersion = '1.0.2'
+dotnetVersion = '3.1'
 
 // Constants
-def registry = defradigital
-def imageNameDevelopment = 'dotnetcore-development'
-def imageNameProduction = 'dotnetcore'
-def regCredsId = DOCKERHUB_CREDENTIALS_ID
-def gitHubCredsId = GITHUB_CREDENTIALS_ID
+registry = DOCKER_REGISTRY
+imageNameDevelopment = 'dotnetcore-development'
+imageNameProduction = 'dotnetcore'
 
 // Variables
-def repoUrl = ''
-def commitSha = ''
-def versionTag = ''
-def imageRepositoryDevelopment = ''
-def imageRepositoryProduction = ''
-def imageRepositoryDevelopmentLatest = ''
-def imageRepositoryProductionLatest = ''
-
-def abortIfNotMaster() {
-  if(BRANCH_NAME == 'master') {
-    echo 'Building master branch'
-  } else {
-    currentBuild.result = 'ABORTED'
-    error('Build aborted - not a master branch')
-  }
-}
+repoUrl = ''
+commitSha = ''
+versionTag = ''
+imageRepositoryDevelopment = ''
+imageRepositoryProduction = ''
+imageRepositoryDevelopmentLatest = ''
+imageRepositoryProductionLatest = ''
 
 def setVariables() {
   repoUrl = getRepoUrl()
   commitSha = getCommitSha()
-  versionTag = "${dockerfileVersion}-dotnet${dotnetVersion}"
+  versionTag = "$dockerfileVersion-dotnet$dotnetVersion"
   imageRepositoryDevelopment = "$registry/$imageNameDevelopment:$versionTag"
   imageRepositoryProduction = "$registry/$imageNameProduction:$versionTag"
   imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
@@ -58,14 +47,17 @@ def updateGithubCommitStatus(message, state) {
 def buildImage(image, target,) {
   sh "docker build --no-cache \
     --tag $image \
-    --build-arg DOTNET_VERSION=${dotnetVersion} \
+    --build-arg NETCORE_VERSION=$dotnetVersion \
     --build-arg VERSION=$dockerfileVersion \
     --target $target \
     ."
 }
 
 def pushImage(image) {
-  docker.withRegistry('', regCredsId) {
+  withCredentials([
+    usernamePassword(credentialsId : DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'username', passwordVariable: 'password')    
+  ]) {
+    sh "docker login --username $username --password $password"
     sh "docker push $image"
   }
 }
@@ -73,30 +65,29 @@ def pushImage(image) {
 node {
   checkout scm
   try {
-    stage('Check master branch') {
-      abortIfNotMaster()
-    }
     stage('Set GitHub status pending') {
       updateGithubCommitStatus('Build started', 'PENDING')
     }
-    stage('Set variables') {
-      setVariables()
-    }
-    stage('Build development image') {
-      buildImage(imageRepositoryDevelopment, 'development')
-      buildImage(imageRepositoryDevelopmentLatest, 'development')
-    }
-    stage('Build production image') {
-      buildImage(imageRepositoryProduction, 'production')
-      buildImage(imageRepositoryProductionLatest, 'production')
-    }
-    stage('Push development image') {
-      pushImage(imageRepositoryDevelopment)
-      pushImage(imageRepositoryDevelopmentLatest)
-    }
-    stage('Push production image') {
-      pushImage(imageRepositoryProduction)
-      pushImage(imageRepositoryProductionLatest)
+    if(BRANCH_NAME != 'master') {
+      stage('Set variables') {
+        setVariables()
+      }
+      stage('Build development image') {
+        buildImage(imageRepositoryDevelopment, 'development')
+        buildImage(imageRepositoryDevelopmentLatest, 'development')
+      }
+      stage('Build production image') {
+        buildImage(imageRepositoryProduction, 'production')
+        buildImage(imageRepositoryProductionLatest, 'production')
+      }
+      stage('Push development image') {
+        pushImage(imageRepositoryDevelopment)
+        pushImage(imageRepositoryDevelopmentLatest)
+      }
+      stage('Push production image') {
+        pushImage(imageRepositoryProduction)
+        pushImage(imageRepositoryProductionLatest)
+      }
     }
     stage('Set GitHub status success') {
       updateGithubCommitStatus('Build successful', 'SUCCESS')
