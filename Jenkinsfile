@@ -45,7 +45,7 @@ def updateGithubCommitStatus(message, state) {
 }
 
 def getImageTags(image) {
-  return sh "curl https://index.docker.io/v1/repositories/$image/tags"
+  return sh(script: 'curl https://index.docker.io/v1/repositories/$image/tags', returnStdout: true)
 }
 
 def currentTagExists(image) {
