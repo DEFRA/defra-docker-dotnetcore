@@ -46,7 +46,7 @@ def updateGithubCommitStatus(message, state) {
 }
 
 def getImageTags(image) {
-  return sh(script: 'curl https://index.docker.io/v1/repositories/$image/tags', returnStdout: true)
+  return sh(script: "curl https://index.docker.io/v1/repositories/$image/tags", returnStdout: true)
 }
 
 def checkTagExists(image) {
@@ -97,14 +97,14 @@ node {
           buildImage(imageRepositoryProduction, 'production')
           buildImage(imageRepositoryProductionLatest, 'production')
         }
-        stage('Push development image') {
-          pushImage(imageRepositoryDevelopment)
-          pushImage(imageRepositoryDevelopmentLatest)
-        }
-        stage('Push production image') {
-          pushImage(imageRepositoryProduction)
-          pushImage(imageRepositoryProductionLatest)
-        }
+        // stage('Push development image') {
+        //   pushImage(imageRepositoryDevelopment)
+        //   pushImage(imageRepositoryDevelopmentLatest)
+        // }
+        // stage('Push production image') {
+        //   pushImage(imageRepositoryProduction)
+        //   pushImage(imageRepositoryProductionLatest)
+        // }
       }
     }
     stage('Set GitHub status success') {
