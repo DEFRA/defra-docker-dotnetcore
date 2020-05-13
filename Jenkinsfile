@@ -83,7 +83,7 @@ node {
     stage('Set GitHub status pending') {
       updateGithubCommitStatus('Build started', 'PENDING')
     }
-    if(BRANCH_NAME != 'master') {
+    if(BRANCH_NAME == 'master') {
       stage('Set variables') {
         setVariables()
       }
@@ -99,14 +99,14 @@ node {
           buildImage(imageRepositoryProduction, 'production')
           buildImage(imageRepositoryProductionLatest, 'production')
         }
-        // stage('Push development image') {
-        //   pushImage(imageRepositoryDevelopment)
-        //   pushImage(imageRepositoryDevelopmentLatest)
-        // }
-        // stage('Push production image') {
-        //   pushImage(imageRepositoryProduction)
-        //   pushImage(imageRepositoryProductionLatest)
-        // }
+        stage('Push development image') {
+          pushImage(imageRepositoryDevelopment)
+          pushImage(imageRepositoryDevelopmentLatest)
+        }
+        stage('Push production image') {
+          pushImage(imageRepositoryProduction)
+          pushImage(imageRepositoryProductionLatest)
+        }
       }
     }
     stage('Set GitHub status success') {
