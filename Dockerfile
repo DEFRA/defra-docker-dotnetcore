@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DOCKERFILE_VERSION=1.0.2
+ARG DOCKERFILE_VERSION=1.0.1
 ARG NETCORE_VERSION=3.1
 
 # Extend Alpine variant of ASP.net base image for small image size
