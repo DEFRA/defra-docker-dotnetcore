@@ -47,7 +47,6 @@ def updateGithubCommitStatus(message, state) {
 
 def getImageTags(image) {
   def tags = sh(script: "curl https://index.docker.io/v1/repositories/$image/tags", returnStdout: true)
-  echo tags
   return tags
 }
 
