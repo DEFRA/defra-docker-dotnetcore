@@ -15,6 +15,7 @@ imageRepositoryDevelopment = ''
 imageRepositoryProduction = ''
 imageRepositoryDevelopmentLatest = ''
 imageRepositoryProductionLatest = ''
+tagExists = false
 
 def setVariables() {
   repoUrl = getRepoUrl()
@@ -48,13 +49,12 @@ def getImageTags(image) {
   return sh(script: 'curl https://index.docker.io/v1/repositories/$image/tags', returnStdout: true)
 }
 
-def currentTagExists(image) {
+def checkTagExists(image) {
   def existingTags = getImageTags(image)
-  if([existingTags].containsValue(versionTag)) {
+  if([existingTags].containsversionTag)) {
     echo "current tag exists in repository"
-    return true
+    tagExists = true
   }
-  return false
 }
 
 def buildImage(image, target) {
@@ -85,7 +85,10 @@ node {
       stage('Set variables') {
         setVariables()
       }
-      if(!currentTagExists(imageRepositoryProductionLatest)) {
+      stage('Check if tag exists in repository') {
+        checkTagExists(imageRepositoryProductionLatest)
+      }
+      if(!tagExists) {
         stage('Build development image') {
           buildImage(imageRepositoryDevelopment, 'development')
           buildImage(imageRepositoryDevelopmentLatest, 'development')
