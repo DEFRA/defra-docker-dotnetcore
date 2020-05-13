@@ -53,7 +53,7 @@ def getImageTags(image) {
 
 def checkTagExists(image) {
   def existingTags = getImageTags(image)
-  if([existingTags].contains(versionTag)) {
+  if(existingTags.contains(versionTag)) {
     echo "current tag exists in repository"
     tagExists = true
   }
