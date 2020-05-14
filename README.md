@@ -19,6 +19,9 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 `Dockerfile` - This is an example project that consumes the parent images created by this repository.
 
+## CI/CD
+On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-development` images and push them to the `defradigital` organisation in GitHub if the tag specified in `./Jenkinsfile` does not already exist in DockerHub.  
+
 ## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
