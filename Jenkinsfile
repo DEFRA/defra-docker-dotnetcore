@@ -20,6 +20,7 @@ tagExists = false
 
 def setCommonVariables() {
   repoUrl = getRepoUrl()
+  echo repoUrl
   commitSha = getCommitSha()
   imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
   imageRepositoryProductionLatest = "$registry/$imageNameProduction"
