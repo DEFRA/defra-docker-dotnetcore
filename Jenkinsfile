@@ -24,7 +24,7 @@ def setCommonVariables() {
   imageRepositoryProductionLatest = "$registry/$imageNameProduction"
 }
 
-def setImageVariables() {
+def setImageVariables(dotnetVersion) {
   versionTag = "$dockerfileVersion-dotnet$dotnetVersion"
   imageRepositoryDevelopment = "$registry/$imageNameDevelopment:$versionTag"
   imageRepositoryProduction = "$registry/$imageNameProduction:$versionTag"
