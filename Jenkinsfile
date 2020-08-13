@@ -1,6 +1,7 @@
 // Versioning - edit these variables to set version information
 dockerfileVersion = '1.0.1'
-dotnetVersion = '3.1'
+latestVersion = '3.1'
+dotnetVersions = ['3.1']
 
 // Constants
 registry = DOCKER_REGISTRY
@@ -17,14 +18,17 @@ imageRepositoryDevelopmentLatest = ''
 imageRepositoryProductionLatest = ''
 tagExists = false
 
-def setVariables() {
+def setCommonVariables() {
   repoUrl = getRepoUrl()
   commitSha = getCommitSha()
+  imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
+  imageRepositoryProductionLatest = "$registry/$imageNameProduction"
+}
+
+def setImageVariables(dotnetVersion) {
   versionTag = "$dockerfileVersion-dotnet$dotnetVersion"
   imageRepositoryDevelopment = "$registry/$imageNameDevelopment:$versionTag"
   imageRepositoryProduction = "$registry/$imageNameProduction:$versionTag"
-  imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
-  imageRepositoryProductionLatest = "$registry/$imageNameProduction"
 }
 
 def getRepoUrl() {
@@ -55,10 +59,12 @@ def checkTagExists(image) {
   if(existingTags.contains(versionTag)) {
     echo "current tag exists in repository"
     tagExists = true
+  } else {
+    taxExits = false
   }
 }
 
-def buildImage(image, target) {
+def buildImage(image, target, dotnetVersion) {
   sh "docker build --no-cache \
     --tag $image \
     --build-arg NETCORE_VERSION=$dotnetVersion \
@@ -79,32 +85,47 @@ def pushImage(image) {
 node {
   checkout scm
   try {
+    stage('Set common variables') {
+      setCommonVariables()
+    }
     stage('Set GitHub status pending') {
       updateGithubCommitStatus('Build started', 'PENDING')
     }
     if(BRANCH_NAME == 'master') {
-      stage('Set variables') {
-        setVariables()
-      }
-      stage('Check if tag exists in repository') {
-        checkTagExists(imageRepositoryProductionLatest)
-      }
-      if(!tagExists) {
-        stage('Build development image') {
-          buildImage(imageRepositoryDevelopment, 'development')
-          buildImage(imageRepositoryDevelopmentLatest, 'development')
+      dotnetVersions.each {
+        stage('Set image variables') {
+          setImageVariables(it)
         }
-        stage('Build production image') {
-          buildImage(imageRepositoryProduction, 'production')
-          buildImage(imageRepositoryProductionLatest, 'production')
+        stage("Check if tag exists in repository ($it)") {
+          checkTagExists(imageRepositoryProductionLatest)
         }
-        stage('Push development image') {
-          pushImage(imageRepositoryDevelopment)
-          pushImage(imageRepositoryDevelopmentLatest)
-        }
-        stage('Push production image') {
-          pushImage(imageRepositoryProduction)
-          pushImage(imageRepositoryProductionLatest)
+        if(!tagExists) {
+          stage("Build development image ($it)") {
+            buildImage(imageRepositoryDevelopment, 'development', it)
+          }
+          stage("Build production image ($it)") {
+            buildImage(imageRepositoryProduction, 'production', it)
+          }
+          stage("Push development image ($it)") {
+            pushImage(imageRepositoryDevelopment)
+          }
+          stage("Push production image ($it)") {
+            pushImage(imageRepositoryProduction)
+          }
+          if(it == latestVersion) {
+            stage('Build development image (latest)') {
+              buildImage(imageRepositoryDevelopmentLatest, 'development', it)
+            }
+            stage('Build production image (latest)') {
+              buildImage(imageRepositoryProductionLatest, 'production', it)
+            }
+            stage('Push development image (latest)') {
+              pushImage("$imageRepositoryDevelopmentLatest:latest")
+            }
+            stage('Push production image (latest)') {
+              pushImage("$imageRepositoryProductionLatest:latest")
+            }
+          }
         }
       }
     }
