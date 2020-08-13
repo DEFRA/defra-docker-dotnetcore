@@ -20,7 +20,6 @@ tagExists = false
 
 def setCommonVariables() {
   repoUrl = getRepoUrl()
-  echo repoUrl
   commitSha = getCommitSha()
   imageRepositoryDevelopmentLatest = "$registry/$imageNameDevelopment"
   imageRepositoryProductionLatest = "$registry/$imageNameProduction"
@@ -86,13 +85,13 @@ def pushImage(image) {
 node {
   checkout scm
   try {
+    stage('Set common variables') {
+      setCommonVariables()
+    }
     stage('Set GitHub status pending') {
       updateGithubCommitStatus('Build started', 'PENDING')
     }
     if(BRANCH_NAME == 'master') {
-      stage('Set common variables') {
-        setCommonVariables()
-      }
       dotnetVersions.each {
         stage('Set image variables') {
           setImageVariables(it)
