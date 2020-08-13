@@ -87,7 +87,7 @@ node {
     stage('Set GitHub status pending') {
       updateGithubCommitStatus('Build started', 'PENDING')
     }
-    if(BRANCH_NAME == 'master') {
+    if(BRANCH_NAME != 'master') {
       stage('Set common variables') {
         setCommonVariables()
       }
@@ -98,7 +98,7 @@ node {
         stage("Check if tag exists in repository ($it)") {
           checkTagExists(imageRepositoryProductionLatest)
         }
-        if(!tagExists) {
+        if(tagExists) {
           stage("Build development image ($it)") {
             buildImage(imageRepositoryDevelopment, 'development', it)
           }
