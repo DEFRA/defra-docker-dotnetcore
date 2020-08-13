@@ -1,5 +1,6 @@
 // Versioning - edit these variables to set version information
 dockerfileVersion = '1.0.1'
+latestVersion = '3.1'
 dotnetVersions = ['3.1']
 
 // Constants
