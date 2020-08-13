@@ -114,16 +114,16 @@ node {
           }
           if(it == latestVersion) {
             stage('Build development image (latest)') {
-              buildImage(imageRepositoryDevelopmentLatest, 'development', it)              
+              buildImage(imageRepositoryDevelopmentLatest, 'development', it)
             }
             stage('Build production image (latest)') {
-              buildImage(imageRepositoryProductionLatest, 'production', it)              
+              buildImage(imageRepositoryProductionLatest, 'production', it)
             }
             stage('Push development image (latest)') {
-              pushImage("$imageRepositoryDevelopmentLatest:latest")              
+              pushImage("$imageRepositoryDevelopmentLatest:latest")
             }
             stage('Push production image (latest)') {
-              pushImage("$imageRepositoryProductionLatest:latest")              
+              pushImage("$imageRepositoryProductionLatest:latest")
             }
           }
         }
