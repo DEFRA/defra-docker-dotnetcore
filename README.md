@@ -2,6 +2,12 @@
 
 This repository contains .Net Core parent Docker image source code for Defra.
 
+The following table lists the versions of .Net Core available, and the parent image they are based on:
+
+| .Net Core version  | Parent image   |
+| ------------------ | -------------- |
+| 3.1                | 3.1-alpine3.12 |
+
 Two parent images are created from this repository:
 
 - `defra-dotnetcore`

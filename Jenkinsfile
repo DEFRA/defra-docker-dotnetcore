@@ -1,7 +1,9 @@
 // Versioning - edit these variables to set version information
-dockerfileVersion = '1.0.1'
+dockerfileVersion = '1.1.0'
 latestVersion = '3.1'
-dotnetVersions = ['3.1']
+dotnetVersions = [
+    [version: '3.1', tag: '3.1-alpine3.12']
+]
 
 // Constants
 registry = DOCKER_REGISTRY
@@ -93,31 +95,33 @@ node {
     }
     if(BRANCH_NAME == 'master') {
       dotnetVersions.each {
+        def version = it.version
+        def tag = it.tag
         stage('Set image variables') {
-          setImageVariables(it)
+          setImageVariables(version)
         }
-        stage("Check if tag exists in repository ($it)") {
+        stage("Check if tag exists in repository ($version)") {
           checkTagExists(imageRepositoryProductionLatest)
         }
         if(!tagExists) {
-          stage("Build development image ($it)") {
-            buildImage(imageRepositoryDevelopment, 'development', it)
+          stage("Build development image ($version)") {
+            buildImage(imageRepositoryDevelopment, 'development', tag)
           }
-          stage("Build production image ($it)") {
-            buildImage(imageRepositoryProduction, 'production', it)
+          stage("Build production image ($version)") {
+            buildImage(imageRepositoryProduction, 'production', tag)
           }
-          stage("Push development image ($it)") {
+          stage("Push development image ($version)") {
             pushImage(imageRepositoryDevelopment)
           }
-          stage("Push production image ($it)") {
+          stage("Push production image ($version)") {
             pushImage(imageRepositoryProduction)
           }
-          if(it == latestVersion) {
+          if(version == latestVersion) {
             stage('Build development image (latest)') {
-              buildImage(imageRepositoryDevelopmentLatest, 'development', it)
+              buildImage(imageRepositoryDevelopmentLatest, 'development', tag)
             }
             stage('Build production image (latest)') {
-              buildImage(imageRepositoryProductionLatest, 'production', it)
+              buildImage(imageRepositoryProductionLatest, 'production', tag)
             }
             stage('Push development image (latest)') {
               pushImage("$imageRepositoryDevelopmentLatest:latest")
