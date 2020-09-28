@@ -17,6 +17,16 @@ It is recommended that services use [multi-stage builds](https://docs.docker.com
 
 An [example](./example) is provided to show how parent images can be extended in a Dockerfile for a service. This should be a good starting point for building .Net Core services conforming to FFC standards.
 
+## Building images locally
+
+To build the images locally, run:
+```
+docker build --no-cache --target <target> .
+```
+(where <target> is either `development` or `production`).
+
+This will build an image using the default `NETCORE_VERSION` as set in the [Dockerfile](Dockerfile).
+
 ## Internal CA certificates
 
 The image includes the certificate for the internal [CA](https://en.wikipedia.org/wiki/Certificate_authority) so that traffic can traverse the network without encountering issues.
@@ -30,7 +40,8 @@ Images should be tagged according to the Dockerfile version and the version of .
 `Dockerfile` - This is an example project that consumes the parent images created by this repository.
 
 ## CI/CD
-On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-development` images and push them to the `defradigital` organisation in GitHub if the tag specified in `./Jenkinsfile` does not already exist in DockerHub.
+
+On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-development` images and push them to the `defradigital` organisation in GitHub if the tag specified in the `dotnetVersions` map within the `./Jenkinsfile` does not already exist in Docker Hub.
 
 ## Licence
 
