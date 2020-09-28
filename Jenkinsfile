@@ -1,5 +1,5 @@
 // Versioning - edit these variables to set version information
-dockerfileVersion = '1.1.0'
+dockerfileVersion = '1.2.0'
 latestVersion = '3.1'
 dotnetVersions = [
     [version: '3.1', tag: '3.1-alpine3.12']
@@ -77,7 +77,7 @@ def buildImage(image, target, dotnetVersion) {
 
 def pushImage(image) {
   withCredentials([
-    usernamePassword(credentialsId : DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'username', passwordVariable: 'password')    
+    usernamePassword(credentialsId : DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'username', passwordVariable: 'password')
   ]) {
     sh "docker login --username $username --password $password"
     sh "docker push $image"

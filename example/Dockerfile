@@ -1,4 +1,4 @@
-# This assumes that the parent image has been built locally using production and development build configuration as defra-dotnetcore 
+# This assumes that the parent image has been built locally using production and development build configuration as defra-dotnetcore
 # and defra-dotnetcore-development tagged with a version.
 
 # Allow parent image version to be set at build time
