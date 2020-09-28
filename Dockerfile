@@ -1,9 +1,9 @@
 # Set default values for build arguments
 ARG DOCKERFILE_VERSION=1.2.0
-ARG NETCORE_VERSION=3.1
+ARG NETCORE_VERSION=3.1-alpine3.12
 
 # Extend Alpine variant of ASP.net base image for small image size
-FROM mcr.microsoft.com/dotnet/core/aspnet:$NETCORE_VERSION-alpine AS production
+FROM mcr.microsoft.com/dotnet/core/aspnet:$NETCORE_VERSION AS production
 
 ARG DOCKERFILE_VERSION
 ARG NETCORE_VERSION
@@ -30,7 +30,7 @@ LABEL uk.gov.defra.dotnetcore.dotnet-version=$NETCORE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore
 
 # Extend Alpine variant of .Net Core SDK base image for small image size
-FROM mcr.microsoft.com/dotnet/core/sdk:$NETCORE_VERSION-alpine AS development
+FROM mcr.microsoft.com/dotnet/core/sdk:$NETCORE_VERSION AS development
 
 ARG DOCKERFILE_VERSION
 ARG NETCORE_VERSION
