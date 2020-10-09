@@ -43,6 +43,8 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-development` images and push them to the `defradigital` organisation in GitHub if the tag specified in the `dotnetVersions` map within the `./Jenkinsfile` does not already exist in Docker Hub.
 
+This image uses the [Defra Docker Shared Jenkins library](https://github.com/DEFRA/defra-docker-jenkins) to abstract pipeline complexity from repository.  See repository for further usage details.
+
 ## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
