@@ -25,7 +25,7 @@ docker build --no-cache --target <target> .
 ```
 (where <target> is either `development` or `production`).
 
-This will build an image using the default `NETCORE_VERSION` as set in the [Dockerfile](Dockerfile).
+This will build an image using the default `BASE_VERSION` as set in the [Dockerfile](Dockerfile).
 
 ## Internal CA certificates
 

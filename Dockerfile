@@ -1,12 +1,12 @@
 # Set default values for build arguments
-ARG DOCKERFILE_VERSION=1.2.0
-ARG NETCORE_VERSION=3.1-alpine3.12
+ARG DEFRA_VERSION=1.2.0
+ARG BASE_VERSION=3.1-alpine3.12
 
 # Extend Alpine variant of ASP.net base image for small image size
-FROM mcr.microsoft.com/dotnet/core/aspnet:$NETCORE_VERSION AS production
+FROM mcr.microsoft.com/dotnet/core/aspnet:$BASE_VERSION AS production
 
-ARG DOCKERFILE_VERSION
-ARG NETCORE_VERSION
+ARG DEFRA_VERSION
+ARG BASE_VERSION
 
 # Default the runtime image to run as production
 ENV ASPNETCORE_ENVIRONMENT=production
@@ -25,21 +25,21 @@ USER dotnet
 WORKDIR /home/dotnet
 
 # Label images to aid searching
-LABEL uk.gov.defra.dotnetcore.dotnet-version=$NETCORE_VERSION \
-      uk.gov.defra.dotnetcore.version=$DOCKERFILE_VERSION \
+LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
+      uk.gov.defra.dotnetcore.version=$DEFRA_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore
 
 # Extend Alpine variant of .Net Core SDK base image for small image size
-FROM mcr.microsoft.com/dotnet/core/sdk:$NETCORE_VERSION AS development
+FROM mcr.microsoft.com/dotnet/core/sdk:$BASE_VERSION AS development
 
-ARG DOCKERFILE_VERSION
-ARG NETCORE_VERSION
+ARG DEFRA_VERSION
+ARG BASE_VERSION
 
 # Default the SDK image to run as development
 ENV ASPNETCORE_ENVIRONMENT=development
 
-LABEL uk.gov.defra.dotnetcore.dotnet-version=$NETCORE_VERSION \
-      uk.gov.defra.dotnetcore.version=$DOCKERFILE_VERSION \
+LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
+      uk.gov.defra.dotnetcore.version=$DEFRA_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore-development
 
 # Install dev tools, such as remote debugger and its dependencies
