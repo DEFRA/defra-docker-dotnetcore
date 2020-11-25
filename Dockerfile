@@ -12,7 +12,7 @@ ARG BASE_VERSION
 ENV ASPNETCORE_ENVIRONMENT=production
 
 # Install Internal CA certificate
-RUN apk update && apk add --no-cache ca-certificates && apk add --no-cache krb5-libs~1.18.3 && rm -rf /var/cache/apk/*
+RUN apk update && apk add --no-cache ca-certificates && apk add --no-cache krb5-libs~=1.18.3 && rm -rf /var/cache/apk/*
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
 
