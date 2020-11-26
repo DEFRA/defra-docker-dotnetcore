@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.2.1
+ARG DEFRA_VERSION=1.2.2
 ARG BASE_VERSION=3.1-alpine3.12
 
 # Extend Alpine variant of ASP.net base image for small image size
@@ -12,7 +12,7 @@ ARG BASE_VERSION
 ENV ASPNETCORE_ENVIRONMENT=production
 
 # Install Internal CA certificate
-RUN apk update && apk add --no-cache ca-certificates && rm -rf /var/cache/apk/*
+RUN apk update && apk add --no-cache ca-certificates && apk add --no-cache 'krb5-libs>1.18.3' && rm -rf /var/cache/apk/*
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
 
