@@ -45,6 +45,10 @@ On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-develop
 
 This image uses the [Defra Docker Shared Jenkins library](https://github.com/DEFRA/defra-docker-jenkins) to abstract pipeline complexity from repository.  See repository for further usage details.
 
+## Image vulnerability scanning
+
+The repository runs a nightly Anchore Engine scan, and will scan images on push. For more details see [Image Scanning](IMAGE_SCANNING.md).
+
 ## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
