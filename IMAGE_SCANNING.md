@@ -49,7 +49,7 @@ Any exclusions should be recorded in the [POLICY_CONFIGURATION.md](POLICY_CONFIG
 If the vulnerability is for an Alpine package, check the CVE report to see if the issue is fixed in a newer version of the package. If so, check if the patched version of the package is available in [Alpine Linux](https://pkgs.alpinelinux.org/packages).
 
 The Dockerfile will need to be updated to install the fixed version of the package.
-There is already a line present in the [Dockerfile](./Dockerfile) that installs Alpine packages. The line, slightly simplified, is show below:
+There is already a line present in the [Dockerfile](./Dockerfile) that installs Alpine packages. A slightly simplified version is show below:
 
 ```
 RUN apk update && apk add --no-cache tini && apk add ca-certificates && rm -rf /var/cache/apk/*
