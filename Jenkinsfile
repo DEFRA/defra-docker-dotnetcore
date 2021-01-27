@@ -9,4 +9,4 @@ ImageMap[] imageMaps = [
 buildParentImage imageName: 'dotnetcore',
   tagName: 'dotnet',
   imageMaps: imageMaps,
-  version: '1.2.2'
+  version: '1.2.3'
