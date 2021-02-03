@@ -5,8 +5,10 @@ on:
     branches: [ '*' ]
 
 jobs:
-  anchore-scan:
+  set-vars:
     runs-on: ubuntu-latest
+      outputs:
+        buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
     steps:
       - uses: actions/checkout@v2
       - id: set_var
@@ -16,5 +18,12 @@ jobs:
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
           echo "::set-output name=buildMatrix::$content"
+  
+  build-push:
+    needs: set-vars
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: use_vars
       - run: |
-          echo "version is ${{fromJson(steps.set_var.outputs.buildMatrix).version}}"
+          echo "version is ${{fromJson(needs.set_vars.outputs.buildMatrix).version}}"
