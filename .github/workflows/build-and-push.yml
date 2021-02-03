@@ -18,10 +18,16 @@ jobs:
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
           echo "::set-output name=buildMatrix::$content"
-
-  build-push:
+  set-vars2:
     runs-on: ubuntu-latest
+    outputs:
+      buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
     steps:
       - uses: actions/checkout@v2
-      - id: use-vars
-      - run: echo "version is something"
+      - id: set-var
+        run: |
+          content=`cat ./build-matrix.json`
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::set-output name=buildMatrix::$content"
