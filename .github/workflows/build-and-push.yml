@@ -7,8 +7,8 @@ on:
 jobs:
   set-vars:
     runs-on: ubuntu-latest
-      outputs:
-        buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
+    outputs:
+      buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
     steps:
       - uses: actions/checkout@v2
       - id: set_var
