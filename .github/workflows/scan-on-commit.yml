@@ -2,7 +2,7 @@ name: SCAN-ON-COMMIT
 
 on:
   push:
-    branches: [ '*' ]
+    branches: [ 'none' ]
 
 jobs:
   anchore-scan:

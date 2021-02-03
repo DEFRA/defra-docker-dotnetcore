@@ -1,0 +1,20 @@
+name: SCAN-ON-COMMIT
+
+on:
+  push:
+    branches: [ '*' ]
+
+jobs:
+  anchore-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: set_var
+        run: |
+          content=`cat ./build-matrix.json`
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::set-output name=buildMatrix::$content"
+      - run: |
+          echo "version is ${{fromJson(steps.set_var.outputs.buildMatrix).version}}"
