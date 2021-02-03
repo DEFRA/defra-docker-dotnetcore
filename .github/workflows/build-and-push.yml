@@ -18,11 +18,3 @@ jobs:
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
           echo "::set-output name=buildMatrix::$content"
-
-  build-push:
-    needs: set-vars
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - id: use-vars
-      - run: echo "version is ${{fromJson(needs.set-vars.outputs.buildMatrix).version}}"
