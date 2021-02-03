@@ -30,3 +30,4 @@ jobs:
         run: |
           echo "release version is ${{fromJSON(needs.set-vars.outputs.buildMatrix).version}}"
           echo "tag is ${{matrix.tag}}"
+          echo "latest is ${{matrix.latest}}"
