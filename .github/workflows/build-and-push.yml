@@ -22,12 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: set-vars
     strategy:
-      matrix:
-        include: ${{fromJSON(needs.set-vars.outputs.buildMatrix.builds)}}
+      matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
       - id: set-var
         run: |
-          echo "release version is ${{fromJSON(needs.set-vars.outputs.buildMatrix).version}}"
           echo "tag is ${{matrix.tag}}"
           echo "latest is ${{matrix.latest}}"
