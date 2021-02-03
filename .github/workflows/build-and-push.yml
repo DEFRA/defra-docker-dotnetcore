@@ -25,4 +25,4 @@ jobs:
       - uses: actions/checkout@v2
       - id: set-var
         run: |
-          echo "version is ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}"
+          echo "version is ${{fromJSON(needs.set-vars.outputs.buildMatrix.version)}}"
