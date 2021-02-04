@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: set-var
         run: |
+          cat VERSION.env >> $GITHUB_ENV
           content=`cat ./build-matrix.json`
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
@@ -30,5 +31,5 @@ jobs:
           echo "tag is ${{matrix.runtimeVersion}}"
           echo "latest is ${{matrix.latest}}"
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=${{matrix.defraVersion}} --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-${{matrix.alpineVersion}}  --tag defradigital/dotnetcore:${{matrix.defraVersion}}-dotnet${{matrix.runTimeVersion}}
+        run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=$DEFRA_VERSION --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}}
  

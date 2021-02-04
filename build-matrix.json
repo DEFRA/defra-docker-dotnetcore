@@ -1,5 +1,5 @@
 {
     "include": [
-        {"defraVersion":"1.2.4", "runtimeVersion": "3.1", "alpineVersion": "alpine3.12", "latest": true}
+        {"runtimeVersion": "3.1", "latest": true}
     ]
 }
