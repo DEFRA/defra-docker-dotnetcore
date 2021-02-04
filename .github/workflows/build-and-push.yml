@@ -29,6 +29,6 @@ jobs:
         run: |
           echo "tag is ${{matrix.runtimeVersion}}"
           echo "latest is ${{matrix.latest}}"
-     - name: Build the Docker image
+      - name: Build the Docker image
         run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=${{matrix.defraVersion}} --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-${{matrix.alpineVersion}}  --tag defradigital/dotnetcore:${{matrix.defraVersion}}-dotnet${{matrix.runTimeVersion}}
  
