@@ -20,31 +20,27 @@ jobs:
           echo "::set-output name=buildMatrix::$content"
   use-vars:
     runs-on: ubuntu-latest
-    needs: set-vars
+    needs: setVars
     strategy:
       matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
-      - name: isLatest
-        id: isLatest
-        if:  matrix.latest
-        run: "export EXTRA_TAG='--tag defradigital/dotnetcore:latest'" 
-      - id: set-var
+      - id: setLatest
         run: |
           cat VERSION.env >> $GITHUB_ENV
           if [ ${{matrix.latest}} = "true" ]
           then 
-            export EXTRA_TAG='--tag defradigital/dotnetcore:latest' 
+            echo "::set-output name=latestTag::--tag defradigital/dotnetcore:latest"
           else
-            export EXTRA_TAG=''
+            echo "::set-output name=latestTag:: "
           fi
       - name: Build the Docker image
         run: | 
-          echo "EXTRA_TAG is $EXTRA_TAG"
           docker build . --file Dockerfile --no-cache \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
-          --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  \
-          --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}} $EXTRA_TAG
+          --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
+          --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
+          ${{ steps.setLatest.outputs.latestTag }}
           docker images
 
  
