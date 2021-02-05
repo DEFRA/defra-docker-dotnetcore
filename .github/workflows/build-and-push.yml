@@ -28,7 +28,7 @@ jobs:
       - name: isLatest
         id: isLatest
         if:  matrix.latest
-        run: "EXTRA_TAG=--tag defradigital/dotnetcore:latest" 
+        run: "export EXTRA_TAG='--tag defradigital/dotnetcore:latest'" 
       - id: set-var
         run: |
           cat VERSION.env >> $GITHUB_ENV
