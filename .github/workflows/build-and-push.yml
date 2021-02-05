@@ -32,6 +32,12 @@ jobs:
       - id: set-var
         run: |
           cat VERSION.env >> $GITHUB_ENV
+          if [ ${{matrix.latest}} = "true" ]
+          then 
+            export EXTRA_TAG='--tag defradigital/dotnetcore:latest' 
+          else
+            export EXTRA_TAG=''
+          fi
           echo "tag is ${{matrix.runtimeVersion}}"
           echo "latest is ${{matrix.latest}}"
           echo "EXTRA_TAG is $EXTRA_TAG"
