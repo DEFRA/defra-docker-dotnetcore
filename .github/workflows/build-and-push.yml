@@ -25,12 +25,11 @@ jobs:
       matrix: ${{fromJSON(needs. get-matrix-values.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2
-      - id: set-global-vars
-        name: Set global env vars 
+      - id: setEnv
+        name: Set Job env vars 
         run: |
           cat JOB.env >> $GITHUB_ENV
-      - id: set-local-vars
-        name: Set local build env vars
+      - name: Build the Docker image
         run: |
           if [ ${{matrix.target}} = "production" ]
           then 
@@ -42,8 +41,6 @@ jobs:
           then 
             LATEST_TAG="--tag defradigital/$FULL_IMAGE_NAME:latest"
           fi
-      - name: Build the Docker image
-        run: |
           docker build . --file Dockerfile --no-cache \
           --target=${{ matrix.target }} \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
