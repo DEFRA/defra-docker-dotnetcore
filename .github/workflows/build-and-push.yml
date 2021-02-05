@@ -30,7 +30,7 @@ jobs:
           cat VERSION.env >> $GITHUB_ENV
           if [ ${{matrix.latest}} = "true" ]
           then 
-            echo "::set-output name=latestTag::--tag defradigital/$IMAGE_NAME:latest"
+            echo "::set-output name=latestTag::--tag defradigital/"$IMAGE_NAME":latest"
           else
             echo "::set-output name=latestTag:: "
           fi
