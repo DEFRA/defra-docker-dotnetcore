@@ -39,5 +39,4 @@ jobs:
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
           --tag defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
-          --target ${{ matrix.target }}\
           $LATEST_TAG
