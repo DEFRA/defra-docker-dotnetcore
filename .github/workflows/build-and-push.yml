@@ -35,6 +35,7 @@ jobs:
           then 
             LATEST_TAG="--tag defradigital/$IMAGE_NAME:latest"
           fi
+          echo "target: ${{ matrix.target }}"
           docker build . --file Dockerfile --no-cache \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
