@@ -31,14 +31,20 @@ jobs:
           cat JOB.env >> $GITHUB_ENV
       - name: Build the Docker image
         run: |
+          if [ ${{matrix.target}} = "production" ]
+          then 
+            FULL_IMAGE_NAME="$IMAGE_NAME"
+          else
+            FULL_IMAGE_NAME="$IMAGE_NAME-${{matrix.target}}"
+          fi
           if [ ${{matrix.latest}} = true ]
           then 
-            LATEST_TAG="--tag defradigital/$IMAGE_NAME:latest"
+            LATEST_TAG="--tag defradigital/$FULL_IMAGE_NAME:latest"
           fi
           echo "target: ${{ matrix.target }}"
           docker build . --file Dockerfile --no-cache \
           --target=${{ matrix.target }} \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
-          --tag defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
-          $LATEST_TAG 
+          --tag defradigital/$FULL_IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
+          $LATEST_TAG
