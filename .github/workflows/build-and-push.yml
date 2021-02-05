@@ -48,3 +48,17 @@ jobs:
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
           --tag defradigital/$FULL_IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
           $LATEST_TAG
+      - uses: anchore/scan-action@v1
+        if: ${{ matrix.target == "production" }
+        with:
+          image-reference: defradigital/dotnetcore:${{ env.DEFRA_VERSION }}-dotnet${{ matrix.runtimeVersion }}
+          fail-build: true
+          custom-policy-path: ./anchore-policy.json
+          include-app-packages: true
+
+      - name: Archive anchore report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: anchore-reports-dotnet-push
+          path: anchore-reports
