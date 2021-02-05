@@ -11,7 +11,7 @@ jobs:
       buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
     steps:
       - uses: actions/checkout@v2
-        id: set-var
+      - id: set-var
         run: |
           content=`cat ./build-matrix.json`
           content="${content//'%'/'%25'}"
@@ -25,7 +25,7 @@ jobs:
       matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
-        id: setEnv
+      - id: setEnv
         name: Set Job env vars 
         run: |
           cat JOB.env >> $GITHUB_ENV
