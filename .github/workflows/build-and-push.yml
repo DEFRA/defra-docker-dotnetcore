@@ -5,10 +5,10 @@ on:
     branches: [ '*' ]
 
 jobs:
-  set-vars:
+  get-matrix-values:
     runs-on: ubuntu-latest
     outputs:
-      buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
+      matrix: ${{ steps.set-var.outputs.matrix }}
     steps:
       - uses: actions/checkout@v2
       - id: set-var
@@ -17,12 +17,12 @@ jobs:
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          echo "::set-output name=buildMatrix::$content"
-  use-vars:
+          echo "::set-output name=matrix::$content"
+  build-images:
     runs-on: ubuntu-latest
-    needs: set-vars
+    needs:  get-matrix-values
     strategy:
-      matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
+      matrix: ${{fromJSON(needs. get-matrix-values.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2
       - id: setEnv
