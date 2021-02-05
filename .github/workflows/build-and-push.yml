@@ -39,5 +39,5 @@ jobs:
           docker build . --file Dockerfile --no-cache \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
-          --tag defradigital/IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
+          --tag defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
           ${{ steps.setLatest.outputs.latestTag }}
