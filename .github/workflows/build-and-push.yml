@@ -25,21 +25,17 @@ jobs:
       matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
-      - id: setLatest
+      - id: setEnv
         run: |
           cat VERSION.env >> $GITHUB_ENV
-          if [ ${{matrix.latest}} = "true" ]
-          then 
-            TAG=defradigital/$IMAGE_NAME:latest
-            echo $TAG
-            echo "::set-output name=latestTag::--tag "$TAG
-          else
-            echo "::set-output name=latestTag:: "
-          fi
       - name: Build the Docker image
         run: |
+          if [ ${{matrix.latest}} = "true" ]
+          then 
+            LATEST_TAG=defradigital/$IMAGE_NAME:latest
+          fi
           docker build . --file Dockerfile --no-cache \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
           --tag defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
-          ${{ steps.setLatest.outputs.latestTag }}
+          $LATEST_TAG
