@@ -1,6 +1,5 @@
 {
     "include": [
-        {"runtimeVersion": "3.1", "latest": true},
-        {"runtimeVersion": "3.1", "latest": false}
+        {"runtimeVersion": "3.1", "latest": true}
     ]
 }
