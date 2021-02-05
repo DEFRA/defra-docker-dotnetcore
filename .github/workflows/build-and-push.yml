@@ -25,12 +25,16 @@ jobs:
       matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
+      - name: isLatest
+        id: isLatest
+        if:  matrix.latest
+        run: "echo 'is latest set'" 
       - id: set-var
         run: |
           cat VERSION.env >> $GITHUB_ENV
           echo "tag is ${{matrix.runtimeVersion}}"
           echo "latest is ${{matrix.latest}}"
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=$DEFRA_VERSION --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}}
+        run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=$DEFRA_VERSION --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  -tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}}
 
  
