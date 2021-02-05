@@ -57,8 +57,8 @@ jobs:
           include-app-packages: true
 
       - name: Archive anchore report
-        if: ${{ failure() }}
+        if: ${{ failure() && matrix.target == 'production' }}
         uses: actions/upload-artifact@v2
         with:
-          name: anchore-reports-dotnet-push
+          name: anchore-reports-dotnet-${{ matrix.runtimeVersion }}
           path: anchore-reports
