@@ -11,7 +11,7 @@ jobs:
       buildMatrix: ${{ steps.set-var.outputs.buildMatrix }}
     steps:
       - uses: actions/checkout@v2
-      - id: set-var
+        id: set-var
         run: |
           content=`cat ./build-matrix.json`
           content="${content//'%'/'%25'}"
@@ -25,9 +25,10 @@ jobs:
       matrix: ${{fromJSON(needs.set-vars.outputs.buildMatrix)}}
     steps:
       - uses: actions/checkout@v2
-      - id: setEnv
+        id: setEnv
+        name: Set Job env vars 
         run: |
-          cat VERSION.env >> $GITHUB_ENV
+          cat JOB.env >> $GITHUB_ENV
       - name: Build the Docker image
         run: |
           if [ ${{matrix.latest}} = true ]
@@ -39,4 +40,3 @@ jobs:
           --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
           --tag defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
           $LATEST_TAG
-          docker images
