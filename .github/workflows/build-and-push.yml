@@ -38,10 +38,13 @@ jobs:
           else
             export EXTRA_TAG=''
           fi
-          echo "tag is ${{matrix.runtimeVersion}}"
-          echo "latest is ${{matrix.latest}}"
           echo "EXTRA_TAG is $EXTRA_TAG"
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --no-cache --build-arg DEFRA_VERSION=$DEFRA_VERSION --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}} $EXTRA_TAG
+        run: | 
+          docker build . --file Dockerfile --no-cache \
+          --build-arg DEFRA_VERSION=$DEFRA_VERSION \
+          --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  \
+          --tag defradigital/dotnetcore:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}} $EXTRA_TAG
+          docker images
 
  
