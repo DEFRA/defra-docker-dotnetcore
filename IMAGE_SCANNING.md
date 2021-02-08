@@ -1,11 +1,11 @@
 
 #  Image vulnerability scanning
 
-The repository runs a vulnerability scan of the latest Docker hub parent image nightly, and the 'work in progress' image on push to a branch via the GitHub actions workflows [nightly-scan.yml](.github/workflows/nightly-scan.yml) and [scan-on-commit.yml](.github/workflows/scan-on-commit.yml) respectively.
+The repository runs a vulnerability scan of the latest Docker hub parent image nightly, and the 'work in progress' image on push to a branch via the GitHub actions workflows [nightly-scan.yml](.github/workflows/nightly-scan.yml) and [build-scan-push.yml](.github/workflows/build-scan-push.yml) respectively.
 
 Scheduled actions only run on the `master` repository branch so will run once, regardless of the number of branches.
 
-Both workflows read settings from the file [scan.env](scan.env) to ensure the same .NET Core, Alpine, and Defra versions are used during the image scan.
+Both workflows read settings from the file [JOB.env](JOB.env) to ensure the same .NET Core, Alpine, and Defra versions are used during the image scan.
 
 Scans are performed using the Anchore Engine GitHub Action using the policy file [anchore-policy.json](anchore-policy.json).
 Details on the policy configuration and exclusions can be found in [POLICY_CONFIGURATION.md](POLICY_CONFIGURATION.md).

@@ -1,10 +1,9 @@
 name: NIGHTLY-SCAN
 
 on:
-  # schedule:
-  #   - cron: '0 1 * * *'
-  push:
-    branches: [ '*' ]
+  schedule:
+    - cron: '0 1 * * *'
+
 jobs:
   get-matrix-values:
     runs-on: ubuntu-latest

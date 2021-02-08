@@ -1,8 +1,8 @@
-name: SCAN-AND-BUILD-ON-COMMIT
+name: BUILD-SCAN-PUSH
 
 on:
   push:
-    branches: [ 'none' ]
+    branches: [ '*' ]
 
 jobs:
 

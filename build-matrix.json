@@ -1,6 +1,0 @@
-{
-    "target": ["development", "production"],
-    "include": [
-        {"runtimeVersion": "3.1", "latest": true}
-    ]
-}
