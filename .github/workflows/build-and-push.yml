@@ -69,9 +69,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - id: pushImage
-        name: push image
-        run: docker image push --all-tags ${{steps.setImageDetails.outputs.dockerRepoName}} 
       # - uses: anchore/scan-action@v1
       #   if: ${{ matrix.target == 'production' }}
       #   with:
