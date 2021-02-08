@@ -2,7 +2,7 @@ name: SCAN-AND-BUILD-ON-COMMIT
 
 on:
   push:
-    branches: [ '*' ]
+    branches: [ 'none' ]
 
 jobs:
 

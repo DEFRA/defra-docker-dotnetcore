@@ -5,16 +5,30 @@ on:
     - cron: '0 1 * * *'
 
 jobs:
+  get-matrix-values:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.set-var.outputs.include }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-var
+        run: |
+          content=`cat ./matrix-include.json`
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::set-output name=include::$content"
+  
   anchore-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set scan environment variables
-        run:  cat scan.env >> $GITHUB_ENV
+      - name: Set job environment variables
+        run:  cat JOB.env >> $GITHUB_ENV
       - name: Scan .NET Core docker image
         uses: anchore/scan-action@v1
         with:
-          image-reference: defradigital/dotnetcore:${{ env.DEFRA_VERSION }}-dotnet${{ env.NETCORE_VERSION }}
+          image-reference: defradigital/:${{env.IMAGE_NAME:${{env.DEFRA_VERSION}}-dotnet${{matrix.runTimeVersion}}
           fail-build: true
           custom-policy-path: ./anchore-policy.json
           include-app-packages: true
@@ -23,5 +37,5 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
-          name: anchore-reports-dotnet
+          name: anchore-reports-dotnet-${{ matrix.runtimeVersion }}
           path: anchore-reports
