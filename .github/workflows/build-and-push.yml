@@ -48,7 +48,8 @@ jobs:
           fi
       - name: Build the Docker image
         run: |
-          echo "full image name ${{steps.setImageDetails.output.fullImageName}}"
+          echo "full image name ${{steps.setImageDetails.outputs.fullImageName}}"
+          echo "latest tag ${{steps.setImageDetails.outputs.latestTag}}"
           if [ ${{matrix.target}} = "production" ]
           then 
             FULL_IMAGE_NAME="$IMAGE_NAME"
