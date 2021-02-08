@@ -70,7 +70,12 @@ jobs:
 
       - id: pushImage
         name: push docker image
-        run: docker image push --all-tags ${{steps.setImageDetails.outputs.dockerRepoName}} 
+        run: |
+          docker image push ${{steps.setImageDetails.outputs.fullImageName}}
+          if [ ${{matrix.latest}} = true ]
+          then 
+            docker image push ${{steps.setImageDetails.outputs.dockerRepoName}}:latest
+          fi
       # - uses: anchore/scan-action@v1
       #   if: ${{ matrix.target == 'production' }}
       #   with:
