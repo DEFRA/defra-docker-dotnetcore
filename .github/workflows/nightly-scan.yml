@@ -29,7 +29,7 @@ jobs:
       - name: Scan .NET Core docker image
         uses: anchore/scan-action@v1
         with:
-          image-reference: defradigital/:${{env.IMAGE_NAME:${{env.DEFRA_VERSION}}-dotnet${{matrix.runTimeVersion}}
+          image-reference: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.runTimeVersion}}
           fail-build: true
           custom-policy-path: ./anchore-policy.json
           include-app-packages: true
