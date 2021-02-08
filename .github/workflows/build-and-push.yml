@@ -31,52 +31,47 @@ jobs:
         name: Set Job env vars 
         run: |
           cat JOB.env >> $GITHUB_ENV
+
       - id: setImageDetails
         name: Set image name and latest tag
         run: |
           if [ ${{matrix.target}} = "production" ]
           then 
-            echo "::set-output name=fullImageName::$IMAGE_NAME"
+            DOCKER_REPO_NAME="$IMAGE_NAME"
           else
-            echo "::set-output name=fullImageName::$IMAGE_NAME-${{matrix.target}}"
+            DOCKER_REPO_NAME="$IMAGE_NAME-${{matrix.target}}"
           fi
+
+          echo "::set-output name=fullImageName::defradigital/$DOCKER_REPO_NAME:$DEFRA_VERSION-dotnet${{matrix.runTimeVersion}}"
+
           if [ ${{matrix.latest}} = true ]
           then 
-            echo "::set-output  name=latestTag::--tag defradigital/$FULL_IMAGE_NAME:latest"
+            echo "::set-output  name=latestTag::--tag defradigital/$DOCKER_REPO_NAME:latest"
           else
             echo "::set-output  name=latestTag:: "
           fi
+
       - name: Build the Docker image
         run: |
-          echo "full image name ${{steps.setImageDetails.outputs.fullImageName}}"
-          echo "latest tag ${{steps.setImageDetails.outputs.latestTag}}"
-          if [ ${{matrix.target}} = "production" ]
-          then 
-            FULL_IMAGE_NAME="$IMAGE_NAME"
-          else
-            FULL_IMAGE_NAME="$IMAGE_NAME-${{matrix.target}}"
-          fi
-          if [ ${{matrix.latest}} = true ]
-          then 
-            LATEST_TAG="--tag defradigital/$FULL_IMAGE_NAME:latest"
-          fi
           docker build . --file Dockerfile --no-cache \
-          --target=${{ matrix.target }} \
+          --target=${{matrix.target}} \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
-          --build-arg BASE_VERSION=${{ matrix.runtimeVersion }}-$ALPINE_VERSION  \
-          --tag defradigital/$FULL_IMAGE_NAME:$DEFRA_VERSION-dotnet${{ matrix.runTimeVersion }} \
-          $LATEST_TAG
-      - uses: anchore/scan-action@v1
-        if: ${{ matrix.target == 'production' }}
-        with:
-          image-reference: defradigital/${{ env.IMAGE_NAME }}:${{ env.DEFRA_VERSION }}-dotnet${{ matrix.runtimeVersion }}
-          fail-build: true
-          custom-policy-path: ./anchore-policy.json
-          include-app-packages: true
+          --build-arg BASE_VERSION=${{matrix.runtimeVersion}}-$ALPINE_VERSION  \
+          --tag ${{steps.setImageDetails.outputs.fullImageName}} \
+          ${{steps.setImageDetails.outputs.latestTag}}
+          docker images
 
-      - name: Archive anchore report
-        if: ${{ failure() && matrix.target == 'production' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: anchore-reports-dotnet-${{ matrix.runtimeVersion }}
-          path: anchore-reports
+      # - uses: anchore/scan-action@v1
+      #   if: ${{ matrix.target == 'production' }}
+      #   with:
+      #     image-reference: defradigital/${{ env.IMAGE_NAME }}:${{ env.DEFRA_VERSION }}-dotnet${{ matrix.runtimeVersion }}
+      #     fail-build: true
+      #     custom-policy-path: ./anchore-policy.json
+      #     include-app-packages: true
+
+      # - name: Archive anchore report
+      #   if: ${{ failure() && matrix.target == 'production' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: anchore-reports-dotnet-${{ matrix.runtimeVersion }}
+      #     path: anchore-reports
