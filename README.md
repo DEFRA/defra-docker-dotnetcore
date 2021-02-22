@@ -41,9 +41,9 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 ## CI/CD
 
-On commit to master Jenkins will build both `dotnetcore` and `dotnetcore-development` images and push them to the `defradigital` organisation in GitHub if the tag specified in the `version` map within the `./Jenkinsfile` does not already exist in Docker Hub.
+On commit GitHub Actions will build both `dotnetcore` and `dotnetcore-development` images and perform a vulnerability scan, as desribed below. 
 
-This image uses the [Defra Docker Shared Jenkins library](https://github.com/DEFRA/defra-docker-jenkins) to abstract pipeline complexity from repository.  See repository for further usage details.
+In addition a commit to the master branch will push the images to the `defradigital` organisation in GitHub using the version tag specified in the [JOB.env](JOB.env) file. The version is expected to be manually updated on each release.
 
 ## Image vulnerability scanning
 
