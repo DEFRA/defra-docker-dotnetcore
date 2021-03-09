@@ -61,7 +61,7 @@ To install the new package you need to supply the name and minimum version to th
 apk add --no-cache 'libssl1.1>1.1.1'
 ```
 
-Note that the `>` symbol will install versions `1.1.1` or greater, so acts like a `>=` operator. Also the `'` quotes around the package name and version are important, and leaving them out can lead to unintended behaviour. Finally for patc
+Note that the `>` symbol will install versions `1.1.1` or greater, so acts like a `>=` operator. Also the `'` quotes around the package name and version are important, and leaving them out can lead to unintended behaviour.
 
 The command should be placed after the `tini` installation, with a leading `&&`. The line above correctly updated would be:
 ```
