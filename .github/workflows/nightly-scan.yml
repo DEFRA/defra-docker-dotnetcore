@@ -1,8 +1,6 @@
 name: NIGHTLY-SCAN
 
 on:
-  push:
-    branches: [ '*' ]
   schedule:
     - cron: '0 1 * * *'
 
