@@ -61,12 +61,14 @@ To install the new package you need to supply the name and minimum version to th
 apk add --no-cache 'libssl1.1>1.1.1'
 ```
 
-Note that the `>` symbol will install versions `1.1.1` or greater, so acts like a `>=` operator. Also the `'` quotes around the package name and version are important, and leaving them out can lead to unintended behaviour.
+Note that the `>` symbol will install versions `1.1.1` or greater, so acts like a `>=` operator. Also the `'` quotes around the package name and version are important, and leaving them out can lead to unintended behaviour. Finally for patc
 
 The command should be placed after the `tini` installation, with a leading `&&`. The line above correctly updated would be:
 ```
 RUN apk update && apk add --no-cache tini  && apk add --no-cache 'libssl1.1>1.1.1' && apk add ca-certificates && rm -rf /var/cache/apk/*
 ```
+
+Sometimes a patch version contains letters, i.e. `1.1.1j-r0`, these should be matched with a `>1.1.1` where possible, rather than tying to a specific version with `=1.1.1j-r0`.
 
 Further details on `apk` syntax can be found in the [Alpine package management documentation](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management).
 
@@ -79,7 +81,7 @@ docker build --no-cache --tag defra-core:latest --target=production .
 
 Scan the tagged image, i.e. `defra-core:latest`, using the Anchore hosted script and the policy file `anchore-policy.json`:
 ```
-curl -s https://ci-tools.anchore.io/inline_scan-v0.8.2 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
+curl -s https://ci-tools.anchore.io/inline_scan-v0.9.1 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
 ```
 
 Full documentation on the inline scanning tool can be found at https://github.com/anchore/ci-tools.
