@@ -67,7 +67,8 @@ jobs:
       - name: run anchore engine scan
         if: ${{ matrix.target == 'production' }}
         run: |
-          curl -s https://ci-tools.anchore.io/inline_scan-v$ANCHORE_SCAN_VERSION | bash -s -- -r -f -b ./anchore-policy.json ${{steps.setImageDetails.outputs.fullImageName}}
+          curl -s https://ci-tools.anchore.io/inline_scan-v$ANCHORE_SCAN_VERSION | \
+          bash -s -- -r -f -b ./anchore-policy.json ${{steps.setImageDetails.outputs.fullImageName}}
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
