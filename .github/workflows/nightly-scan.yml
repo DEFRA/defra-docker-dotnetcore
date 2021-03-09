@@ -34,7 +34,7 @@ jobs:
       - name: Scan .NET Core docker image
         run: |
           curl -s https://ci-tools.anchore.io/inline_scan-v$ANCHORE_SCAN_VERSION | \
-          bash -s -- -r -f -b -p ./anchore-policy.json defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{matrix.image.runTimeVersion}}
+          bash -s -- -r -f -p -b ./anchore-policy.json defradigital/$IMAGE_NAME:$DEFRA_VERSION-dotnet${{matrix.image.runTimeVersion}}
 
       - name: Archive anchore report
         if: ${{ failure() }}
