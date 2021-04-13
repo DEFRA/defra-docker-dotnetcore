@@ -7,10 +7,8 @@ Scheduled actions only run on the `master` repository branch so will run once, r
 
 Both workflows read settings from the file [JOB.env](JOB.env) to ensure the same .NET Core, Alpine, and Defra versions are used during the image scan.
 
-Scans are performed using the Anchore Engine GitHub Action using the policy file [anchore-policy.json](anchore-policy.json).
+Scans are performed by the [Anchore Engine CLI Tools](https://github.com/anchore/ci-tools) inline script using the policy file [anchore-policy.json](anchore-policy.json).
 Details on the policy configuration and exclusions can be found in [POLICY_CONFIGURATION.md](POLICY_CONFIGURATION.md).
-
-Note that the scan is performed using version 1 of the [Anchore Scan Action](https://github.com/anchore/scan-action/tree/version1) as version 2 does not yet support policy files.
 
 ## Addressing vulnerabilities
 
@@ -81,7 +79,7 @@ docker build --no-cache --tag defra-core:latest --target=production .
 
 Scan the tagged image, i.e. `defra-core:latest`, using the Anchore hosted script and the policy file `anchore-policy.json`:
 ```
-curl -s https://ci-tools.anchore.io/inline_scan-v0.9.1 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
+curl -s https://ci-tools.anchore.io/inline_scan-v0.9.3 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
 ```
 
 Full documentation on the inline scanning tool can be found at https://github.com/anchore/ci-tools.
