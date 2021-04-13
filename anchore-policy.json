@@ -2,7 +2,7 @@
   "id": "defra001",
   "version": "1_0",
   "name": "Defra Default bundle",
-  "comment": "Fail on medium, exclude known base NPM install issues",
+  "comment": "Fail on medium, exclude known system package issues",
   "whitelisted_images": [],
   "blacklisted_images": [],
   "mappings": [
