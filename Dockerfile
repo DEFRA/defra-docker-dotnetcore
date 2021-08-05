@@ -1,9 +1,9 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.2.6
-ARG BASE_VERSION=3.1-alpine3.12
+ARG DEFRA_VERSION=1.2.7
+ARG BASE_VERSION=3.1-alpine3.13
 
 # Extend Alpine variant of ASP.net base image for small image size
-FROM mcr.microsoft.com/dotnet/core/aspnet:$BASE_VERSION AS production
+FROM mcr.microsoft.com/dotnet/aspnet:$BASE_VERSION AS production
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION
@@ -30,7 +30,7 @@ LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore
 
 # Extend Alpine variant of .Net Core SDK base image for small image size
-FROM mcr.microsoft.com/dotnet/core/sdk:$BASE_VERSION AS development
+FROM mcr.microsoft.com/dotnet/sdk:$BASE_VERSION AS development
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION
