@@ -79,7 +79,7 @@ docker build --no-cache --tag defra-core:latest --target=production .
 
 Scan the tagged image, i.e. `defra-core:latest`, using the Anchore hosted script and the policy file `anchore-policy.json`:
 ```
-curl -s https://ci-tools.anchore.io/inline_scan-v0.9.3 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
+curl -s https://ci-tools.anchore.io/inline_scan-v0.10.0 | bash -s -- -r -f -b ./anchore-policy.json defra-core:latest
 ```
 
 Full documentation on the inline scanning tool can be found at https://github.com/anchore/ci-tools.
