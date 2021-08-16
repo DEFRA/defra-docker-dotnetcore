@@ -6,7 +6,7 @@ The following table lists the versions of .Net Core available, and the parent im
 
 | .Net Core version  | Parent image   |
 | ------------------ | -------------- |
-| 3.1                | 3.1-alpine3.12 |
+| 3.1                | 3.1-alpine3.13 |
 
 Two parent images are created from this repository:
 
