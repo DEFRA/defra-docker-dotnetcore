@@ -61,9 +61,9 @@ apk add --no-cache 'libssl1.1>1.1.1'
 
 Note that the `>` symbol will install versions `1.1.1` or greater, so acts like a `>=` operator. Also the `'` quotes around the package name and version are important, and leaving them out can lead to unintended behaviour.
 
-The command should be placed after the `tini` installation, with a leading `&&`. The line above correctly updated would be:
+The command should be placed after the `ca-certificates` installation, with a leading `&&`. The line above correctly updated would be:
 ```
-RUN apk update && apk add --no-cache tini  && apk add --no-cache 'libssl1.1>1.1.1' && apk add ca-certificates && rm -rf /var/cache/apk/*
+RUN apk update&& apk add ca-certificates  && apk add --no-cache 'libssl1.1>1.1.1' && rm -rf /var/cache/apk/*
 ```
 
 Sometimes a patch version contains letters, i.e. `1.1.1j-r0`, these should be matched with a `>1.1.1` where possible, rather than tying to a specific version with `=1.1.1j-r0`.
