@@ -90,9 +90,9 @@ jobs:
             docker image push ${{steps.setImageDetails.outputs.dockerRepoName}}:latest
           fi
 
-      - name: upload Anchore Grype SARIF report
+      - name: Upload Anchore Grype SARIF report
         if: ${{ failure() && matrix.target == 'production' }}
         uses: actions/upload-artifact@v2
         with:
-          name: anchore-reports-node-${{ matrix.image.runtimeVersion }}
-          path: ${{ steps.scan.outputs.sarif }}
+          name: anchore-reports-netcore-${{ matrix.image.runtimeVersion }}
+          path: ${{ steps.scan.outputs.sarif }}     
