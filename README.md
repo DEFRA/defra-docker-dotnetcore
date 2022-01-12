@@ -16,7 +16,7 @@ Two parent images are created from this repository:
 
 It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
-[Examples](./example) are provided to show how parent images can be extended for different types of services. These should be a good starting point for building Node services conforming to Defra standards.
+[Examples](./example) are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .NET Core services conforming to Defra standards.
 
 ## Building images locally
 

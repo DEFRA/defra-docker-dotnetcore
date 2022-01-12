@@ -5,7 +5,7 @@ Please include a summary of the changes i.e. .NET Core version updates, librarie
 # Checklist:
 
 - [ ] I have ensured the Defra version in the **JOB.env** file matches that in the **Dockerfile**
-- [ ] I have ensured the Node.js versions in the **image-matrix.json** match the **Dockerfile** and the table in the **README.md**
+- [ ] I have ensured the runtime versions in the **image-matrix.json** match the **Dockerfile** and the table in the **README.md**
 - [ ] I have added newly ignored vulnerabilities to the **POLICY_CONFIGURATION.md**
 - [ ] I have checked if previously identified vulnerabilities have been patched, and can be removed from the **.grype.yaml** and **POLICY_CONFIGURATION.md** files
 
