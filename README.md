@@ -7,7 +7,7 @@ The following table lists the versions of .Net Core available, and the parent im
 | .Net Core version  | Parent image   |
 | ------------------ | -------------- |
 | 3.1                | 3.1-alpine3.14 |
-| 6.0                | 3.1-alpine3.14 |
+| 6.0                | 6.0-alpine3.14 |
 
 Two parent images are created from this repository:
 
@@ -16,7 +16,7 @@ Two parent images are created from this repository:
 
 It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
-An [example](./example) is provided to show how parent images can be extended in a Dockerfile for a service. This should be a good starting point for building .Net Core services conforming to FFC standards.
+[Examples](./example) are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .NET Core services conforming to Defra standards.
 
 ## Building images locally
 
@@ -50,7 +50,7 @@ The .Net Core version marked as latest in the [image-matrix.json](image-matrix.j
 
 ## Image vulnerability scanning
 
-A GitHub Action runs a nightly Anchore Engine scan of the image published to Docker, and will build and scan pre-release images on push. 
+A GitHub Action runs a nightly Anchore Grype scan of the image published to Docker, and will build and scan pre-release images on push.
 
 This ensures Defra services that use the parent images are starting from a known secure foundation, and can limit patching to only newly added libraries.
 
