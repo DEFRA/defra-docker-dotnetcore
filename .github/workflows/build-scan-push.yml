@@ -94,5 +94,5 @@ jobs:
         if: ${{ failure() && matrix.target == 'production' }}
         uses: actions/upload-artifact@v2
         with:
-          name: anchore-reports-netcore-${{ matrix.image.runtimeVersion }}
+          name: anchore-reports-dotnet-${{ matrix.image.runtimeVersion }}
           path: ${{ steps.scan.outputs.sarif }}     
