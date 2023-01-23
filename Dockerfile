@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.2.17
+ARG DEFRA_VERSION=1.2.18
 ARG BASE_VERSION=6.0-alpine3.16
 
 # Extend Alpine variant of ASP.net base image for small image size
@@ -50,7 +50,8 @@ RUN apk update && \
     && wget -qO- https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l /vsdbg \
     && wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
     && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk \
-    && apk add glibc-2.29-r0.apk
+    # see https://github.com/sgerrand/alpine-pkg-glibc/issues/185 for need for force-overwrite
+    && apk add --force-overwrite glibc-2.29-r0.apk
 
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
