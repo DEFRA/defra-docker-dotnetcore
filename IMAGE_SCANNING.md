@@ -21,7 +21,7 @@ There are two solutions to address an image vulnerability: patch the Dockerfile 
 
 ### Adding a vulnerability to the exclusion list
 
-The scan output on the GitHub Action log will provide details of the gate and trigger that has failed, along with the CVE ID of the vulnerability.
+The scan output and the [GitHub Security Code Scanning Center](https://github.com/DEFRA/defra-docker-java/security/code-scanning) will provide details of the type and severity of the vulnerability, along with the CVE ID of the vulnerability.
 
 The vulnerability report also provides the CVE ID and package name in a file with the suffix `-vuln.json`, available in the failed Github Action's artifact.
 
