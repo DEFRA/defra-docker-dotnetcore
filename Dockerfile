@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.4.0
+ARG DEFRA_VERSION=1.5.0
 ARG BASE_VERSION=6.0-alpine3.16
 
 # Extend Alpine variant of ASP.net base image for small image size
@@ -10,6 +10,9 @@ ARG BASE_VERSION
 
 # Default the runtime image to run as production
 ENV ASPNETCORE_ENVIRONMENT=production
+
+# Update available packages
+RUN apk update && apk upgrade --available
 
 # Install Internal CA certificate
 RUN apk update && apk add --no-cache ca-certificates && apk add --update-cache --no-cache 'apk-tools>2.12.6-r0' && rm -rf /var/cache/apk/*
@@ -41,6 +44,9 @@ ENV ASPNETCORE_ENVIRONMENT=development
 LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
       uk.gov.defra.dotnetcore.version=$DEFRA_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore-development
+
+# Update available packages
+RUN apk update && apk upgrade --available
 
 # Install dev tools, such as remote debugger and its dependencies
 # Install Internal CA certificate
