@@ -6,7 +6,6 @@ The following table lists the versions of .Net available, and the parent image t
 
 | .Net version       | Parent image   |
 | ------------------ | -------------- |
-| 3.1.423            | 3.1-alpine3.16 |
 | 6.0.420            | 6.0-alpine3.16 |
 | 8.0.203            | 8.0-alpine3.16 |
 
