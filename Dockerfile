@@ -3,7 +3,7 @@ ARG DEFRA_VERSION=1.6.0
 ARG BASE_VERSION=6.0-alpine3.16
 
 # Extend Alpine variant of ASP.net base image for small image size
-FROM mcr.microsoft.com/dotnet:$BASE_VERSION AS production
+FROM mcr.microsoft.com/dotnet/runtime:$BASE_VERSION AS production
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION
