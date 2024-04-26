@@ -1,13 +1,13 @@
-# Docker .NET Core
+# Docker .NET
 
-This repository contains .Net Core parent Docker image source code for Defra.
+This repository contains .Net parent Docker image source code for Defra.
 
-The following table lists the versions of .Net Core available, and the parent image they are based on:
+The following table lists the versions of .Net available, and the parent image they are based on:
 
-| .Net Core version  | Parent image   |
+| .Net version       | Parent image   |
 | ------------------ | -------------- |
-| 3.1.423            | 3.1-alpine3.16 |
-| 6.0.401            | 6.0-alpine3.16 |
+| 6.0.420            | 6.0-alpine3.18 |
+| 8.0.203            | 8.0-alpine3.18 |
 
 Two parent images are created from this repository:
 
@@ -16,7 +16,7 @@ Two parent images are created from this repository:
 
 It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
-[Examples](./example) are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .NET Core services conforming to Defra standards.
+[Examples](./example) are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .NET services conforming to Defra standards.
 
 ## Building images locally
 
@@ -34,7 +34,7 @@ The image includes the certificate for the internal [CA](https://en.wikipedia.or
 
 ## Versioning
 
-Images should be tagged according to the Dockerfile version and the version of .Net Core on which the image is based. For example, for Dockerfile version `1.0.0` based on .Net Core `3.1.0`, the built image would be tagged `1.0.0-dotnetcore3.1.0`.
+Images should be tagged according to the Dockerfile version and the version of .Net on which the image is based. For example, for Dockerfile version `1.0.0` based on .Net `3.1.0`, the built image would be tagged `1.0.0-dotnetcore3.1.0`.
 
 ## Example file
 
@@ -42,11 +42,11 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 ## CI/CD
 
-On commit GitHub Actions will build both `dotnetcore` and `dotnetcore-development` images for the .NET Core versions listed in the [image-matrix.json](image-matrix.json) file, and perform a vulnerability scan, as described below. 
+On commit GitHub Actions will build both `dotnetcore` and `dotnetcore-development` images for the .NET versions listed in the [image-matrix.json](image-matrix.json) file, and perform a vulnerability scan, as described below. 
 
 In addition a commit to the master branch will push the images to the `defradigital` organisation in GitHub using the version tag specified in the [JOB.env](JOB.env) file. The version is expected to be manually updated on each release.
 
-The .Net Core version marked as latest in the [image-matrix.json](image-matrix.json) will be tagged as the latest image in Docker Hub.
+The .Net version marked as latest in the [image-matrix.json](image-matrix.json) will be tagged as the latest image in Docker Hub.
 
 ## Image vulnerability scanning
 

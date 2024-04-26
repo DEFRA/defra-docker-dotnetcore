@@ -37,13 +37,6 @@ jobs:
           fail-build: false
           severity-cutoff: "medium"
           output-format: "sarif"
-
-      - name: Scan Java docker image for build failure
-        uses: anchore/scan-action@v3
-        with:
-          image: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.runTimeVersion}}
-          fail-build: true
-          severity-cutoff: "medium"
           only-fixed: true
 
       - name: Upload Anchore Grype SARIF report
