@@ -38,7 +38,7 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 ## Example file
 
-`Dockerfile` - This is an example project that consumes the parent images created by this repository.
+[`example/Dockerfile`](example/Dockerfile) - This is an example project that consumes the parent images created by this repository.
 
 ## CI/CD
 
