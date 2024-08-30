@@ -13,7 +13,7 @@ jobs:
     outputs:
       image: ${{ steps.set-var.outputs.image }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: set-var
         run: |
           echo 'image<<EOF' >> $GITHUB_OUTPUT
@@ -28,7 +28,7 @@ jobs:
         target: ["development", "production"]
         image: ${{fromJSON(needs.get-matrix-values.outputs.image)}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: setEnv
         name: Set Job env vars 
         run: |
@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload Anchore Grype SARIF report
         if: ${{ failure() && matrix.target == 'production' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: anchore-reports-dotnet-${{ matrix.image.runtimeVersion }}
           path: ${{ steps.scan.outputs.sarif }}
