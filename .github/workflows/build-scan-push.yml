@@ -83,6 +83,7 @@ jobs:
           severity-cutoff: "medium"
 
       - name: Inspect action SARIF report
+        if: ${{ matrix.target == 'production' }}
         run: cat ${{ steps.scan.outputs.sarif }}
 
       - name: Login to DockerHub
