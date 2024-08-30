@@ -38,6 +38,7 @@ jobs:
           severity-cutoff: "medium"
 
       - name: Inspect action SARIF report
+        if: ${{ failure() }}
         run: cat ${{ steps.scan.outputs.sarif }}
 
       - name: Upload Anchore Grype SARIF report
