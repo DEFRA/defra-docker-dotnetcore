@@ -29,7 +29,7 @@ jobs:
       - name: Set job environment variables
         run:  cat JOB.env >> $GITHUB_ENV
 
-      - name: Scan .NET Core docker image for Sarif output
+      - name: Scan .NET docker image
         id: scan
         uses: anchore/scan-action@v3
         with:
@@ -39,7 +39,7 @@ jobs:
 
       - name: Upload Anchore Grype SARIF report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: anchore-reports-dotnet-${{ matrix.image.runtimeVersion }}
           path: ${{ steps.scan.outputs.sarif }}
