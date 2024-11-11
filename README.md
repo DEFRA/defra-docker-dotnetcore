@@ -6,8 +6,8 @@ The following table lists the versions of .Net available, and the parent image t
 
 | .Net version       | Parent image   |
 | ------------------ | -------------- |
-| 6.0.425            | 6.0-alpine3.20 |
-| 8.0.400            | 8.0-alpine3.20 |
+| 6.0.427            | 6.0-alpine3.20 |
+| 8.0.403            | 8.0-alpine3.20 |
 
 Two parent images are created from this repository:
 
