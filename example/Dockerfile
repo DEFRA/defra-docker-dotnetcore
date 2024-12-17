@@ -2,7 +2,7 @@
 # and defra-dotnetcore-development tagged with a version.
 
 # Allow parent image version to be set at build time
-ARG PARENT_VERSION=1.7.2-dotnet8.0
+ARG PARENT_VERSION=1.7.3-dotnet8.0
 
 # Development stage, used the build the app and provide testing tools
 FROM defra-dotnetcore-development:$PARENT_VERSION AS development
