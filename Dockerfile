@@ -2,7 +2,7 @@
 ARG DEFRA_VERSION=1.8.0
 ARG BASE_VERSION=8.0-alpine3.21
 
-# Extend Alpine variant of ASP.net base image for small image size
+# Extend Alpine variant of ASP.NET base image for small image size
 FROM mcr.microsoft.com/dotnet/aspnet:$BASE_VERSION AS production
 
 ARG DEFRA_VERSION
@@ -15,7 +15,7 @@ ENV ASPNETCORE_ENVIRONMENT=production
 RUN apk update && apk upgrade --available
 
 # Install Internal CA certificate
-RUN apk update && apk add --no-cache ca-certificates && apk add --update-cache --no-cache 'apk-tools>2.12.6-r0' && rm -rf /var/cache/apk/*
+RUN apk add --no-cache ca-certificates
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
 
@@ -45,19 +45,19 @@ LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
       uk.gov.defra.dotnetcore.version=$DEFRA_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore-development
 
-# Update available packages
-RUN apk update && apk upgrade --available
+# Install additional development dependencies
+RUN apk add --no-cache bash ca-certificates curl procps unzip wget
 
-# Install dev tools, such as remote debugger and its dependencies
+# Install .NET debugger to support debugging in a container
+ADD https://aka.ms/getvsdbgsh /tmp/getvsdbgsh
+RUN /bin/sh /tmp/getvsdbgsh -v latest -l /vsdbg && rm /tmp/getvsdbgsh
+
+# Add Pact Contract testing dependencies
+ADD https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
+ADD https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk glibc-2.35-r1.apk
+RUN apk add --no-cache glibc-2.35-r1.apk
+
 # Install Internal CA certificate
-# Pact dependencies are not included in Alpine image for contract testing
-RUN apk update && \
-    apk add --no-cache bash ca-certificates curl procps unzip wget && rm -rf /var/cache/apk/* \
-    && wget -qO- https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l /vsdbg \
-    && wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
-    && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk \
-    && apk add --no-cache glibc-2.35-r1.apk
-
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
 
