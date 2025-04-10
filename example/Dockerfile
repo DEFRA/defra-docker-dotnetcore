@@ -32,7 +32,7 @@ RUN dotnet publish ./exampleService/ -c Release -o /home/dotnet/out
 
 # Expose the app on a defined port, configurable via a build argument
 ARG PORT=3000
-ENV PORT ${PORT}
+ENV PORT=${PORT}
 EXPOSE ${PORT}
 
 # Set the default command for development to run a file watcher.
