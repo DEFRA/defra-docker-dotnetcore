@@ -1,6 +1,6 @@
 # Description
 
-Please include a summary of the changes i.e. .NET Core version updates, libraries patched, or issues added to the policy file.
+Please include a summary of the changes i.e. .NET version updates, libraries patched, or issues added to the policy file.
 
 # Checklist:
 
