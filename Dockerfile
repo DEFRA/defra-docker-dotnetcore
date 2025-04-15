@@ -46,7 +46,7 @@ LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore-development
 
 # Install additional development dependencies
-RUN apk add --no-cache bash ca-certificates curl procps unzip wget
+RUN apk add --no-cache bash ca-certificates curl procps unzip
 
 # Install .NET debugger to support debugging in a container
 ADD https://aka.ms/getvsdbgsh /tmp/getvsdbgsh
