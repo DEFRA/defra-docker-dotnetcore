@@ -2,7 +2,7 @@
 # and defra-dotnetcore-development tagged with a version.
 
 # Allow parent image version to be set at build time
-ARG PARENT_VERSION=1.7.3-dotnet8.0
+ARG PARENT_VERSION=1.8.0-dotnet8.0
 
 # Development stage, used the build the app and provide testing tools
 FROM defra-dotnetcore-development:$PARENT_VERSION AS development
@@ -32,7 +32,7 @@ RUN dotnet publish ./exampleService/ -c Release -o /home/dotnet/out
 
 # Expose the app on a defined port, configurable via a build argument
 ARG PORT=3000
-ENV PORT ${PORT}
+ENV PORT=${PORT}
 EXPOSE ${PORT}
 
 # Set the default command for development to run a file watcher.
