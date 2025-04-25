@@ -1,4 +1,3 @@
  [
-    { "runtimeVersion": "6.0", "alpineVersion": "3.20", "latest": false },
     { "runtimeVersion": "8.0", "alpineVersion": "3.21", "latest": true }
 ]

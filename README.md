@@ -6,7 +6,6 @@ The following table lists the versions of .Net available, and the parent image t
 
 | .Net version       | Parent image   |
 | ------------------ | -------------- |
-| 6.0.428            | 6.0-alpine3.21 |
 | 8.0.408            | 8.0-alpine3.21 |
 
 Two parent images are created from this repository:
@@ -34,7 +33,7 @@ The image includes the certificate for the internal [CA](https://en.wikipedia.or
 
 ## Versioning
 
-Images should be tagged according to the Dockerfile version and the version of .Net on which the image is based. For example, for Dockerfile version `1.0.0` based on .Net `3.1.0`, the built image would be tagged `1.0.0-dotnetcore3.1.0`.
+Images should be tagged according to the Dockerfile version and the version of .Net on which the image is based. For example, for Dockerfile version `1.0.0` based on .Net `8.0`, the built image would be tagged `1.0.0-dotnetcore8.0`.
 
 ## Example file
 
