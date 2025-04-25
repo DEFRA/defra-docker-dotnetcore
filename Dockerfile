@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.8.0
+ARG DEFRA_VERSION=1.9.0
 ARG BASE_VERSION=8.0-alpine3.21
 
 # Extend Alpine variant of ASP.NET base image for small image size
@@ -14,7 +14,7 @@ ENV ASPNETCORE_ENVIRONMENT=production
 # Update available packages
 RUN apk update && apk upgrade --available
 
-# Install Internal CA certificate
+# Install Internal CA certificate for firewall and Zscaler proxy
 RUN apk add --no-cache ca-certificates
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
@@ -57,7 +57,7 @@ ADD https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa
 ADD https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk glibc-2.35-r1.apk
 RUN apk add --no-cache glibc-2.35-r1.apk
 
-# Install Internal CA certificate
+# Install Internal CA certificate for firewall and Zscaler proxy
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/internal-ca.crt && update-ca-certificates
 
