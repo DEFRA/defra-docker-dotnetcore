@@ -61,20 +61,12 @@ jobs:
           echo "current_defra_version=${current_defra_version}" >> $GITHUB_ENV
           echo "new_defra_version=${new_defra_version}" >> $GITHUB_ENV
 
-      - name: Env vars
-        run: |
-          echo "latest_net_version=${{ env.latest_net_version }}"
-          echo "latest_net_sdk=${{ env.latest_net_sdk }}"
-          echo "latest_net_runtime=${{ env.latest_net_runtime }}"
-          echo "current_alpine_version=${{ env.current_alpine_version }}"
-          echo "current_defra_version=${{ env.current_defra_version }}"
-          echo "new_defra_version=${{ env.new_defra_version }}"
-
       - name: Update files
         if: env.update_needed == 'true'
         run: |
           # Update Dockerfile
           sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
+          sed -i "s/ARG DEFRA_VERSION=.*/ARG DEFRA_VERSION=${new_defra_version}/" Dockerfile
           echo "Updated Dockerfile"
 
           # Update README.md
