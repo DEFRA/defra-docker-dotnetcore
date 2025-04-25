@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
-  push:
-    branches:
-      - auto-update
 
 jobs:
   check-and-update:
