@@ -83,7 +83,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: update-net-base-image-${{ env.latest_net_version }}
           base: master
-          title: "Update .NET base image to ${{ env.latest_net_version }}"
+          title: "Update .NET base image for ${{ env.latest_net_version }}"
           body: |
-            Updates the .NET base image to version ${{ env.latest_net_version }}.
+            Updates the .NET SDK base image to version ${{ env.latest_net_sdk }}.
+            Updates the .NET Runtime base image to version ${{ env.latest_net_runtime }}.
           sign-commits: true
