@@ -81,9 +81,9 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-net-base-image-${{ env.latest_net_version }}
+          branch: update-net-base-image-${{ env.latest_net_version }}-${{ env.latest_net_sdk }}-${{ env.latest_net_runtime }}
           base: master
-          title: "Update .NET base image for ${{ env.latest_net_version }}"
+          title: "Update .NET base image for ${{ env.latest_net_version }}, SDK: ${{ env.latest_net_sdk }}, Runtime: ${{ env.latest_net_runtime }}"
           body: |
             Updates the .NET SDK base image to version ${{ env.latest_net_sdk }}.
             Updates the .NET Runtime base image to version ${{ env.latest_net_runtime }}.
