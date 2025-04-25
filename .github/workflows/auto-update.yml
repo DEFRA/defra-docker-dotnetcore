@@ -70,33 +70,31 @@ jobs:
           echo "current_defra_version=${{ env.current_defra_version }}"
           echo "new_defra_version=${{ env.new_defra_version }}"
 
-      # - name: Update files
-      #   if: env.update_needed == 'true'
-      #   run: |
-      #     # Update Dockerfile
-      #     sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
-      #     echo "Updated Dockerfile"
+      - name: Update files
+        if: env.update_needed == 'true'
+        run: |
+          # Update Dockerfile
+          sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
+          echo "Updated Dockerfile"
 
-      #     # Update README.md
-      #     sed -i "s/|[[:space:]]*${current_net_version}[[:space:]]*|[[:space:]]*${current_net_version}-alpine${current_alpine_version}[[:space:]]*|/| ${latest_net_version}       | ${latest_net_version}-alpine${current_alpine_version} |/" README.md
-      #     echo "Updated README.md"
+          # Update README.md
+          sed -i "/|[[:space:]]*${current_net_sdk}[[:space:]]*|[[:space:]]*${current_net_runtime}[[:space:]]*|/c\\| ${latest_net_version}          | ${latest_net_sdk}     | ${latest_net_runtime}          | ${latest_net_version}-alpine${current_alpine_version} |" README.md
+          echo "Updated README.md"
 
-      #     # Update JOB.env
-      #     sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
-      #     echo "Updated JOB.env"
+          # Update JOB.env
+          sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
+          sed -i "s/SDK_VERSION=.*/SDK_VERSION=${latest_net_sdk}/" JOB.env
+          sed -i "s/RUNTIME_VERSION=.*/RUNTIME_VERSION=${latest_net_runtime}/" JOB.env
+          echo "Updated JOB.env"
 
-      #     # Update image-matrix.json
-      #     sed -i "s/\"runtimeVersion\": \"${current_net_version}\"/\"runtimeVersion\": \"${latest_net_version}\"/" image-matrix.json
-      #     echo "Updated image-matrix.json"
-
-      # - name: Create pull request
-      #   if: env.update_needed == 'true'
-      #   uses: peter-evans/create-pull-request@v7
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     branch: update-net-base-image-${{ env.latest_net_version }}
-      #     base: master
-      #     title: "Update .NET base image to ${{ env.latest_net_version }}"
-      #     body: |
-      #       Updates the .NET base image to version ${{ env.latest_net_version }}.
-      #     sign-commits: true
+      - name: Create pull request
+        if: env.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-net-base-image-${{ env.latest_net_version }}
+          base: master
+          title: "Update .NET base image to ${{ env.latest_net_version }}"
+          body: |
+            Updates the .NET base image to version ${{ env.latest_net_version }}.
+          sign-commits: true
