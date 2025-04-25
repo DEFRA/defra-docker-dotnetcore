@@ -1,0 +1,89 @@
+name: AUTO-UPDATE
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - auto-update
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch latest .NET versions
+        id: fetch-latest
+        run: |
+          curl -s https://raw.githubusercontent.com/dotnet/core/main/release-notes/releases-index.json > releases-index.json
+          latest_net_version=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["latest-release"]' releases-index.json | head -n 1)
+          echo "latest_net_version=${latest_net_version}" >> $GITHUB_ENV
+          rm releases-index.json
+
+      - name: Extract current Alpine version
+        id: extract-alpine
+        run: |
+          current_alpine_version=$(grep -oP 'ARG BASE_VERSION=[\d.]+-alpine\K[\d.]+' Dockerfile)
+          echo "current_alpine_version=${current_alpine_version}" >> $GITHUB_ENV
+
+      - name: Check if update is needed
+        id: check-update
+        run: |
+          current_net_version=$(grep -oP 'ARG BASE_VERSION=\K[\d.]+' Dockerfile)
+          if [[ "$latest_net_version" != "$current_net_version" ]]; then
+            echo "update_needed=true" >> $GITHUB_ENV
+            echo "current_net_version=${current_net_version}" >> $GITHUB_ENV
+          else
+            echo "update_needed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check Docker image availability
+        id: check-docker-image
+        run: |
+          image="node:${latest_net_version}-alpine${current_alpine_version}"
+          if ! docker pull "$image" &>/dev/null; then
+            echo "update_needed=false" >> $GITHUB_ENV
+            echo "Docker image $image not available. Skipping update."
+          fi
+
+      - name: Update Defra version
+        if: env.update_needed == 'true'
+        run: |
+          current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
+          new_defra_version=$(echo "$current_defra_version" | awk -F. '{print $1"."$2"."$3+1}')
+          echo "current_defra_version=${current_defra_version}" >> $GITHUB_ENV
+          echo "new_defra_version=${new_defra_version}" >> $GITHUB_ENV
+
+      # - name: Update files
+      #   if: env.update_needed == 'true'
+      #   run: |
+      #     # Update Dockerfile
+      #     sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
+      #     echo "Updated Dockerfile"
+
+      #     # Update README.md
+      #     sed -i "s/|[[:space:]]*${current_net_version}[[:space:]]*|[[:space:]]*${current_net_version}-alpine${current_alpine_version}[[:space:]]*|/| ${latest_net_version}       | ${latest_net_version}-alpine${current_alpine_version} |/" README.md
+      #     echo "Updated README.md"
+
+      #     # Update JOB.env
+      #     sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
+      #     echo "Updated JOB.env"
+
+      #     # Update image-matrix.json
+      #     sed -i "s/\"runtimeVersion\": \"${current_net_version}\"/\"runtimeVersion\": \"${latest_net_version}\"/" image-matrix.json
+      #     echo "Updated image-matrix.json"
+
+      # - name: Create pull request
+      #   if: env.update_needed == 'true'
+      #   uses: peter-evans/create-pull-request@v7
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: update-net-base-image-${{ env.latest_net_version }}
+      #     base: master
+      #     title: "Update .NET base image to ${{ env.latest_net_version }}"
+      #     body: |
+      #       Updates the .NET base image to version ${{ env.latest_net_version }}.
+      #     sign-commits: true
