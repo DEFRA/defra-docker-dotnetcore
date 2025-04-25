@@ -1,0 +1,90 @@
+name: AUTO-UPDATE
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch latest .NET versions
+        run: |
+          curl -s https://raw.githubusercontent.com/dotnet/core/main/release-notes/releases-index.json > releases-index.json
+          latest_net_version=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["channel-version"]' releases-index.json | head -n 1)
+          latest_net_sdk=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["latest-sdk"]' releases-index.json | head -n 1)
+          latest_net_runtime=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["latest-runtime"]' releases-index.json | head -n 1)
+          echo "latest_net_version=${latest_net_version}" >> $GITHUB_ENV
+          echo "latest_net_sdk=${latest_net_sdk}" >> $GITHUB_ENV
+          echo "latest_net_runtime=${latest_net_runtime}" >> $GITHUB_ENV
+          rm releases-index.json
+
+      - name: Extract current Alpine version
+        run: |
+          current_alpine_version=$(grep -oP 'ARG BASE_VERSION=[\d.]+-alpine\K[\d.]+' Dockerfile)
+          echo "current_alpine_version=${current_alpine_version}" >> $GITHUB_ENV
+
+      - name: Check if update is needed
+        run: |
+          current_net_sdk=$(grep -oP 'SDK_VERSION=\K[\d.]+' JOB.env)
+          current_net_runtime=$(grep -oP 'RUNTIME_VERSION=\K[\d.]+' JOB.env)
+
+          if [[ "$latest_net_sdk" != "$current_net_sdk" || "$latest_net_runtime" != "$current_net_runtime" ]]; then
+            echo "update_needed=true" >> $GITHUB_ENV
+            echo "current_net_sdk=${current_net_sdk}" >> $GITHUB_ENV
+            echo "current_net_runtime=${current_net_runtime}" >> $GITHUB_ENV
+          else
+            echo "update_needed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check Docker image availability
+        if: env.update_needed == 'true'
+        run: |
+          image="mcr.microsoft.com/dotnet/aspnet:${latest_net_version}-alpine${current_alpine_version}"
+          if ! docker pull "$image" &>/dev/null; then
+            echo "update_needed=false" >> $GITHUB_ENV
+            echo "Docker image $image not available. Skipping update."
+          fi
+
+      - name: Update Defra version
+        if: env.update_needed == 'true'
+        run: |
+          current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
+          new_defra_version=$(echo "$current_defra_version" | awk -F. '{print $1"."$2"."$3+1}')
+          echo "current_defra_version=${current_defra_version}" >> $GITHUB_ENV
+          echo "new_defra_version=${new_defra_version}" >> $GITHUB_ENV
+
+      - name: Update files
+        if: env.update_needed == 'true'
+        run: |
+          # Update Dockerfile
+          sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
+          sed -i "s/ARG DEFRA_VERSION=.*/ARG DEFRA_VERSION=${new_defra_version}/" Dockerfile
+          echo "Updated Dockerfile"
+
+          # Update README.md
+          sed -i "/|[[:space:]]*${current_net_sdk}[[:space:]]*|[[:space:]]*${current_net_runtime}[[:space:]]*|/c\\| ${latest_net_version}          | ${latest_net_sdk}     | ${latest_net_runtime}          | ${latest_net_version}-alpine${current_alpine_version} |" README.md
+          echo "Updated README.md"
+
+          # Update JOB.env
+          sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
+          sed -i "s/SDK_VERSION=.*/SDK_VERSION=${latest_net_sdk}/" JOB.env
+          sed -i "s/RUNTIME_VERSION=.*/RUNTIME_VERSION=${latest_net_runtime}/" JOB.env
+          echo "Updated JOB.env"
+
+      - name: Create pull request
+        if: env.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-net-base-image-${{ env.latest_net_version }}-${{ env.latest_net_sdk }}-${{ env.latest_net_runtime }}
+          base: master
+          title: "Update .NET base image for ${{ env.latest_net_version }}, SDK: ${{ env.latest_net_sdk }}, Runtime: ${{ env.latest_net_runtime }}"
+          body: |
+            Updates the .NET SDK base image to version ${{ env.latest_net_sdk }}.
+            Updates the .NET Runtime base image to version ${{ env.latest_net_runtime }}.
+          sign-commits: true
