@@ -80,7 +80,7 @@ jobs:
         if: env.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           branch: update-net-base-image-${{ env.latest_net_version }}-${{ env.latest_net_sdk }}-${{ env.latest_net_runtime }}
           base: master
           title: "Update .NET base image for ${{ env.latest_net_version }}, SDK: ${{ env.latest_net_sdk }}, Runtime: ${{ env.latest_net_runtime }}"
