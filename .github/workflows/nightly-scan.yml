@@ -45,7 +45,7 @@ jobs:
         with:
           image-ref: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
           format: sarif
-          output: 'trivy-scan.sarif'
+          output: trivy-reports-dotnet-${{ matrix.image.netVersion }}
           exit-code: 1
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
-          path: trivy-scan.sarif
+          path: trivy-reports-dotnet-${{ matrix.image.netVersion }}
 
       - name: Fail build if scans failed
         if: ${{ (steps.grype-scan.outcome == 'failure' || steps.trivy-scan.outcome == 'failure') }}
