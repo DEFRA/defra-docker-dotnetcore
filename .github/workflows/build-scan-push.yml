@@ -116,14 +116,14 @@ jobs:
           done
 
       - name: Upload Grype SARIF report
-        if: ${{ failure() && matrix.target == 'production' }}
+        if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target == 'production' }}
         uses: actions/upload-artifact@v4
         with:
           name: grype-reports-dotnet-${{ matrix.image.netVersion }}
           path: ${{ steps.grype-scan.outputs.sarif }}
 
       - name: Upload Trivy SARIF report
-        if: ${{ failure() && matrix.target == 'production' }}
+        if: ${{ steps.trivy-scan.outcome == 'failure' && matrix.target == 'production' }}
         uses: actions/upload-artifact@v4
         with:
           name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
