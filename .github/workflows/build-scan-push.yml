@@ -125,4 +125,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
-          path: ${{ steps.trivy-scan.outputs.sarif }}
+          path: trivy-scan.sarif
