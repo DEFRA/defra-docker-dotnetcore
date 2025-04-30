@@ -20,7 +20,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
           echo 'base<<EOF' >> $GITHUB_OUTPUT
-          cat '[{ "image": "sdk", "target": "development" }, { "image": "aspnet", "target": "production" }, { "image": "runtime", "target": "production" }]' >> $GITHUB_OUTPUT
+          echo '[{ "image": "sdk", "target": "development" }, { "image": "aspnet", "target": "production" }, { "image": "runtime", "target": "production" }]' >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
   build-images:
