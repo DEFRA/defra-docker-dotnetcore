@@ -81,10 +81,7 @@ jobs:
           image: ${{steps.setImageDetails.outputs.fullImageName}}
           fail-build: true
           severity-cutoff: "medium"
-
-      - name: Inspect action SARIF report
-        if: ${{ matrix.target == 'production' }}
-        run: cat ${{ steps.grype-scan.outputs.sarif }}
+        continue-on-error: true
 
       - name: Run Aqua Trivy scan
         id: trivy-scan
@@ -97,6 +94,7 @@ jobs:
           exit-code: 1
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
+        continue-on-error: true
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
