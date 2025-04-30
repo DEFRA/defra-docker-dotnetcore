@@ -95,6 +95,25 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
         continue-on-error: true
+      - name: Upload Grype SARIF report
+        if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target == 'production' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype-reports-dotnet-${{ matrix.image.netVersion }}
+          path: ${{ steps.grype-scan.outputs.sarif }}
+
+      - name: Upload Trivy SARIF report
+        if: ${{ steps.trivy-scan.outcome == 'failure' && matrix.target == 'production' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
+          path: trivy-scan.sarif
+
+      - name: Fail build if scans failed
+        if: ${{ (steps.grype-scan.outcome == 'failure' || steps.trivy-scan.outcome == 'failure') && matrix.target == 'production' }}
+        run: |
+          echo "One or more scans failed. Failing the build."
+          exit 1
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -112,17 +131,3 @@ jobs:
           do
             docker image push $TAG
           done
-
-      - name: Upload Grype SARIF report
-        if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target == 'production' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: grype-reports-dotnet-${{ matrix.image.netVersion }}
-          path: ${{ steps.grype-scan.outputs.sarif }}
-
-      - name: Upload Trivy SARIF report
-        if: ${{ steps.trivy-scan.outcome == 'failure' && matrix.target == 'production' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
-          path: trivy-scan.sarif
