@@ -95,6 +95,7 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
         continue-on-error: true
+
       - name: Upload Grype SARIF report
         if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target == 'production' }}
         uses: actions/upload-artifact@v4
