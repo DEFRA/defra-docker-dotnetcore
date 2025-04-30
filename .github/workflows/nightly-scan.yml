@@ -33,7 +33,7 @@ jobs:
         id: scan
         uses: anchore/scan-action@v3
         with:
-          image: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.runTimeVersion}}
+          image: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
           fail-build: true
           severity-cutoff: "medium"
 
@@ -45,5 +45,5 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
         with:
-          name: anchore-reports-dotnet-${{ matrix.image.runtimeVersion }}
+          name: anchore-reports-dotnet-${{ matrix.image.netVersion }}
           path: ${{ steps.scan.outputs.sarif }}
