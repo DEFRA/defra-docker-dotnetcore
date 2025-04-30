@@ -1,10 +1,10 @@
 # Set default values for build arguments
 ARG DEFRA_VERSION=1.10.0
 ARG BASE_VERSION=8.0-alpine3.21
-ARG PRODUCTION_IMAGE=aspnet
+ARG MCR_IMAGE=aspnet
 
 # Extend Alpine variant of ASP.NET base image for small image size
-FROM mcr.microsoft.com/dotnet/${PRODUCTION_IMAGE}:$BASE_VERSION AS production
+FROM mcr.microsoft.com/dotnet/$MCR_IMAGE:$BASE_VERSION AS production
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION

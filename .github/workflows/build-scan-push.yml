@@ -24,7 +24,7 @@ jobs:
     needs:  get-matrix-values
     strategy:
       matrix:
-        target: ["development", "production"]
+        target: [{ "image": "sdk", "target": "development" }, { "image": "aspnet", "target": "production" }, { "image": "runtime", "target": "production" }]
         image: ${{fromJSON(needs.get-matrix-values.outputs.image)}}
     steps:
       - uses: actions/checkout@v4
@@ -36,11 +36,12 @@ jobs:
       - id: setImageDetails
         name: Set image name and latest tag
         run: |
-          if [ ${{matrix.target}} = "production" ]
-          then 
+          if [ "${{ matrix.target.image }}" = "sdk" ]; then
+            DOCKER_REPO_NAME="defradigital/$IMAGE_NAME-${{ matrix.target.target }}"
+          elif [ "${{ matrix.target.image }}" = "aspnet" ]; then
             DOCKER_REPO_NAME="defradigital/$IMAGE_NAME"
           else
-            DOCKER_REPO_NAME="defradigital/$IMAGE_NAME-${{matrix.target}}"
+            DOCKER_REPO_NAME="defradigital/$IMAGE_NAME-${{ matrix.target.image }}"
           fi
           
           echo "dockerRepoName=$DOCKER_REPO_NAME" >> $GITHUB_OUTPUT
@@ -57,9 +58,10 @@ jobs:
       - name: Build the Docker image
         run: |
           docker build . --file Dockerfile --no-cache \
-          --target=${{matrix.target}} \
+          --target=${{matrix.target.target}} \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{matrix.image.netVersion}}-alpine${{matrix.image.alpineVersion}}  \
+          --build-arg MCR_IMAGE=${{matrix.target.image}} \
           --tag ${{steps.setImageDetails.outputs.fullImageName}}
           docker images
 
@@ -74,7 +76,7 @@ jobs:
 
       - name: Run Anchore Grype scan
         id: grype-scan
-        if: ${{ matrix.target == 'production' }}
+        if: ${{ matrix.target.target == 'production' }}
         uses: anchore/scan-action@v6
         with:
           image: ${{steps.setImageDetails.outputs.fullImageName}}
@@ -84,7 +86,7 @@ jobs:
 
       - name: Run Aqua Trivy scan
         id: trivy-scan
-        if: ${{ matrix.target == 'production' }}
+        if: ${{ matrix.target.target == 'production' }}
         uses: aquasecurity/trivy-action@0.30.0
         with:
           image-ref: ${{steps.setImageDetails.outputs.fullImageName}}
@@ -96,21 +98,21 @@ jobs:
         continue-on-error: true
 
       - name: Upload Grype SARIF report
-        if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target == 'production' }}
+        if: ${{ steps.grype-scan.outcome == 'failure' && matrix.target.target == 'production' }}
         uses: actions/upload-artifact@v4
         with:
           name: grype-reports-dotnet-${{ matrix.image.netVersion }}
           path: ${{ steps.grype-scan.outputs.sarif }}
 
       - name: Upload Trivy SARIF report
-        if: ${{ steps.trivy-scan.outcome == 'failure' && matrix.target == 'production' }}
+        if: ${{ steps.trivy-scan.outcome == 'failure' && matrix.target.target == 'production' }}
         uses: actions/upload-artifact@v4
         with:
           name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
           path: trivy-reports-dotnet-${{ matrix.image.netVersion }}
 
       - name: Fail build if scans failed
-        if: ${{ (steps.grype-scan.outcome == 'failure' || steps.trivy-scan.outcome == 'failure') && matrix.target == 'production' }}
+        if: ${{ (steps.grype-scan.outcome == 'failure' || steps.trivy-scan.outcome == 'failure') && matrix.target.target == 'production' }}
         run: |
           echo "One or more scans failed. Failing the build."
           exit 1
