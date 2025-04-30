@@ -1,8 +1,8 @@
 # Docker .NET
 
-This repository contains .Net parent Docker image source code for Defra.
+This repository contains .NET parent Docker image source code for Defra.
 
-The following table lists the versions of .Net available, and the parent image they are based on:
+The following table lists the versions of .NET available, and the parent image they are based on:
 
 | .NET version | SDK version | Runtime version | Parent image   |
 | ------------ |-------------|---------------- | -------------- |
