@@ -61,7 +61,7 @@ jobs:
           --target=${{matrix.base.target}} \
           --build-arg DEFRA_VERSION=$DEFRA_VERSION \
           --build-arg BASE_VERSION=${{matrix.image.netVersion}}-alpine${{matrix.image.alpineVersion}}  \
-          --build-arg MCR_IMAGE=${{matrix.target.image}} \
+          --build-arg MCR_IMAGE=${{matrix.base.image}} \
           --tag ${{steps.setImageDetails.outputs.fullImageName}}
           docker images
 
