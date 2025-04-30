@@ -26,8 +26,10 @@ jobs:
         image: ${{fromJSON(needs.get-matrix-values.outputs.image)}}
     steps:
       - uses: actions/checkout@v4
+
       - name: Set job environment variables
         run:  cat JOB.env >> $GITHUB_ENV
+
       - name: Run Anchore Grype scan
         id: grype-scan
         uses: anchore/scan-action@v6
