@@ -23,6 +23,7 @@ jobs:
     needs:  get-matrix-values
     strategy:
       matrix:
+        base: ['', 'runtime']
         image: ${{fromJSON(needs.get-matrix-values.outputs.image)}}
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +35,7 @@ jobs:
         id: grype-scan
         uses: anchore/scan-action@v6
         with:
-          image: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
+          image: defradigital/${{env.IMAGE_NAME}}${{matrix.base}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
           fail-build: true
           severity-cutoff: "medium"
         continue-on-error: true
