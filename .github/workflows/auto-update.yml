@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+  push:
+    branches:
+      - master
 
 jobs:
   check-and-update:
@@ -15,76 +18,103 @@ jobs:
       - name: Fetch latest .NET versions
         run: |
           curl -s https://raw.githubusercontent.com/dotnet/core/main/release-notes/releases-index.json > releases-index.json
-          latest_net_version=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["channel-version"]' releases-index.json | head -n 1)
-          latest_net_sdk=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["latest-sdk"]' releases-index.json | head -n 1)
-          latest_net_runtime=$(jq -r '.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | .["latest-runtime"]' releases-index.json | head -n 1)
-          echo "latest_net_version=${latest_net_version}" >> $GITHUB_ENV
-          echo "latest_net_sdk=${latest_net_sdk}" >> $GITHUB_ENV
-          echo "latest_net_runtime=${latest_net_runtime}" >> $GITHUB_ENV
-          rm releases-index.json
+          echo "Fetched latest .NET versions"
 
-      - name: Extract current Alpine version
+      - name: Check for updates
+        id: check-updates
         run: |
-          current_alpine_version=$(grep -oP 'ARG BASE_VERSION=[\d.]+-alpine\K[\d.]+' Dockerfile)
-          echo "current_alpine_version=${current_alpine_version}" >> $GITHUB_ENV
+          latest_versions=$(jq -r '[.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | {major: (.["channel-version"] | split(".")[0] | tonumber), sdk: .["latest-sdk"], runtime: .["latest-runtime"]}] | group_by(.major) | map({(.[0].major | tostring): {sdk: .[0].sdk, runtime: .[0].runtime}}) | add' releases-index.json)
+     
+          jq -c '.[]' image-matrix.json | while read -r entry; do
+            current_net_version=$(echo "$entry" | jq -r '.netVersion')
+            current_sdk_version=$(echo "$entry" | jq -r '.sdkVersion')
+            current_runtime_version=$(echo "$entry" | jq -r '.runtimeVersion')
+            alpine_version=$(echo "$entry" | jq -r '.alpineVersion')
 
-      - name: Check if update is needed
-        run: |
-          current_net_sdk=$(grep -oP 'SDK_VERSION=\K[\d.]+' JOB.env)
-          current_net_runtime=$(grep -oP 'RUNTIME_VERSION=\K[\d.]+' JOB.env)
+            # Get the latest SDK and runtime for the major version
+            latest_sdk_version=$(echo "$latest_versions" | jq -r --arg major "$major_version" '.[$major].sdk // empty')
+            latest_runtime_version=$(echo "$latest_versions" | jq -r --arg major "$major_version" '.[$major].runtime // empty')
 
-          if [[ "$latest_net_sdk" != "$current_net_sdk" || "$latest_net_runtime" != "$current_net_runtime" ]]; then
+            # Check if updates are needed
+            if [[ -n "$latest_sdk_version" && "$latest_sdk_version" != "$current_sdk_version" ]] || [[ -n "$latest_runtime_version" && "$latest_runtime_version" != "$current_runtime_version" ]]; then
+              # Verify if the Alpine image exists
+              image="mcr.microsoft.com/dotnet/aspnet:${current_net_version}-alpine${alpine_version}"
+              if docker pull "$image" &>/dev/null; then
+                echo "Update needed for .NET $current_net_version: SDK $current_sdk_version -> $latest_sdk_version, Runtime $current_runtime_version -> $latest_runtime_version"
+                echo "$current_net_version:$latest_sdk_version:$latest_runtime_version:$alpine_version" >> updates.txt
+              else
+                echo "No Alpine image available for .NET $major_version with Alpine $alpine_version. Skipping update."
+              fi
+            fi
+          done
+
+          # Check if updates.txt exists and is not empty
+          if [[ -s updates.txt ]]; then
             echo "update_needed=true" >> $GITHUB_ENV
-            echo "current_net_sdk=${current_net_sdk}" >> $GITHUB_ENV
-            echo "current_net_runtime=${current_net_runtime}" >> $GITHUB_ENV
           else
             echo "update_needed=false" >> $GITHUB_ENV
           fi
 
-      - name: Check Docker image availability
-        if: env.update_needed == 'true'
-        run: |
-          image="mcr.microsoft.com/dotnet/aspnet:${latest_net_version}-alpine${current_alpine_version}"
-          if ! docker pull "$image" &>/dev/null; then
-            echo "update_needed=false" >> $GITHUB_ENV
-            echo "Docker image $image not available. Skipping update."
-          fi
-
-      - name: Update Defra version
-        if: env.update_needed == 'true'
-        run: |
-          current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
-          new_defra_version=$(echo "$current_defra_version" | awk -F. '{print $1"."$2"."$3+1}')
-          echo "current_defra_version=${current_defra_version}" >> $GITHUB_ENV
-          echo "new_defra_version=${new_defra_version}" >> $GITHUB_ENV
-
       - name: Update files
         if: env.update_needed == 'true'
         run: |
-          # Update Dockerfile
-          sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${current_alpine_version}/" Dockerfile
-          sed -i "s/ARG DEFRA_VERSION=.*/ARG DEFRA_VERSION=${new_defra_version}/" Dockerfile
-          echo "Updated Dockerfile"
+          # Update image-matrix.json
+          while IFS=: read -r net_version sdk_version runtime_version alpine_version; do
+            sed -i "/\"netVersion\": \"${net_version}\"/,/}/s/\"sdkVersion\": \"[^\"]*\"/\"sdkVersion\": \"${sdk_version}\"/" image-matrix.json
+            sed -i "/\"netVersion\": \"${net_version}\"/,/}/s/\"runtimeVersion\": \"[^\"]*\"/\"runtimeVersion\": \"${runtime_version}\"/" image-matrix.json
+          done < updates.txt
+          echo "Updated image-matrix.json"
 
-          # Update README.md
-          sed -i "/|[[:space:]]*${current_net_sdk}[[:space:]]*|[[:space:]]*${current_net_runtime}[[:space:]]*|/c\\| ${latest_net_version}          | ${latest_net_sdk}     | ${latest_net_runtime}          | ${latest_net_version}-alpine${current_alpine_version} |" README.md
+          while IFS=: read -r net_version sdk_version runtime_version alpine_version; do
+            sed -i -E "s/^\\|[[:space:]]*${net_version}[[:space:]]*\\|[[:space:]]*[[:digit:].]+[[:space:]]*\\|[[:space:]]*[[:digit:].]+[[:space:]]*\\|[[:space:]]*${net_version}-alpine[[:digit:].]+[[:space:]]*\\|/| ${net_version}          | ${sdk_version}     | ${runtime_version}          | ${net_version}-alpine${alpine_version} |/" README.md
+          done < updates.txt
           echo "Updated README.md"
 
           # Update JOB.env
+          current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
+          new_defra_version=$(echo "$current_defra_version" | awk -F. '{print $1"."$2"."$3+1}')
           sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
-          sed -i "s/SDK_VERSION=.*/SDK_VERSION=${latest_net_sdk}/" JOB.env
-          sed -i "s/RUNTIME_VERSION=.*/RUNTIME_VERSION=${latest_net_runtime}/" JOB.env
           echo "Updated JOB.env"
+
+          # Update Dockerfile
+          latest_net_version=$(jq -r '.[] | select(.latest == true) | .netVersion' image-matrix.json)
+          latest_alpine_version=$(jq -r '.[] | select(.latest == true) | .alpineVersion' image-matrix.json)
+          sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_net_version}-alpine${latest_alpine_version}/" Dockerfile
+          sed -i "s/ARG DEFRA_VERSION=.*/ARG DEFRA_VERSION=${new_defra_version}/" Dockerfile
+          echo "Updated Dockerfile"
+
+      - name: Prepare pull request details
+        if: env.update_needed == 'true'
+        run: |
+          # Read updates.txt into an environment variable
+          updated_versions=$(cat updates.txt | awk -F: '{print $1}' | sort -u | paste -sd, -)
+
+          pull_request_title="Update .NET base image: ${updated_versions}"
+          pull_request_body=$(cat updates.txt | awk -F: '{print "- .NET " $1 ": SDK " $2 ", Runtime " $3}')
+          pull_request_branch="update-dotnet-base-image-${updated_versions//,/}"
+
+          echo "pull_request_branch=${pull_request_branch}" >> $GITHUB_ENV
+          echo "pull_request_title=${pull_request_title}" >> $GITHUB_ENV
+          echo "pull_request_body=${pull_request_body}" >> $GITHUB_ENV
+          echo "Prepared pull request details."
+
+      - name: Clean up temporary files
+        if: env.update_needed == 'true'
+        run: |
+          rm -f releases-index.json updates.txt
+          echo "Removed temporary files."
 
       - name: Create pull request
         if: env.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-net-base-image-${{ env.latest_net_version }}-${{ env.latest_net_sdk }}-${{ env.latest_net_runtime }}
+          token: ${{ steps.generate-token.outputs.token }}
+          branch: ${{ env.pull_request_branch }}
           base: master
-          title: "Update .NET base image for ${{ env.latest_net_version }}, SDK: ${{ env.latest_net_sdk }}, Runtime: ${{ env.latest_net_runtime }}"
+          title: ${{ env.pull_request_title }}
           body: |
-            Updates the .NET SDK base image to version ${{ env.latest_net_sdk }}.
-            Updates the .NET Runtime base image to version ${{ env.latest_net_runtime }}.
+            Updates the .NET base images to the latest versions:
+            ${{ env.pull_request_body }}
           sign-commits: true
+          commit-message: ${{ env.pull_request_title }}
+          team-reviewers: ${{ vars.PR_REVIEW_TEAM }}
