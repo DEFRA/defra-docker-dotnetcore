@@ -131,3 +131,24 @@ jobs:
           do
             docker image push $TAG
           done
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: build-images
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Create GitHub release
+      if: github.ref == 'refs/heads/master'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
+
+        if gh release view $current_defra_version &>/dev/null; then
+          echo "Tag $current_defra_version already exists. Skipping release."
+        else
+          gh release create $current_defra_version \
+          --title ".NET $current_defra_version" \
+          --generate-notes 
+        fi
