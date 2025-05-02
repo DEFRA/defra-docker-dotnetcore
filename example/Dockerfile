@@ -57,5 +57,4 @@ EXPOSE ${PORT}
 COPY --from=development /home/dotnet/out/ ./
 
 # Set the default command for production to run the compiled app.
-# Use shell form so environment variables are interpreted.
-CMD dotnet exampleService.dll
+CMD ["dotnet", "exampleService.dll"]
