@@ -23,17 +23,25 @@ jobs:
       - name: Check for updates
         id: check-updates
         run: |
-          latest_versions=$(jq -r '[.["releases-index"][] | select(.["support-phase"] == "active" and .["release-type"] == "lts") | {major: (.["channel-version"] | split(".")[0] | tonumber), sdk: .["latest-sdk"], runtime: .["latest-runtime"]}] | group_by(.major) | map({(.[0].major | tostring): {sdk: .[0].sdk, runtime: .[0].runtime}}) | add' releases-index.json)
-     
+          latest_versions=$(jq -r '
+            [.["releases-index"][] 
+              | select(.["support-phase"] == "active" and .["release-type"] == "lts")
+              | {majorminor: (.["channel-version"] | split(".")[0:2] | join(".")), sdk: .["latest-sdk"], runtime: .["latest-runtime"]}
+            ]
+            | group_by(.majorminor)
+            | map({(.[0].majorminor): {sdk: .[0].sdk, runtime: .[0].runtime}})
+            | add
+          ' releases-index.json)
+
           jq -c '.[]' image-matrix.json | while read -r entry; do
             current_net_version=$(echo "$entry" | jq -r '.netVersion')
             current_sdk_version=$(echo "$entry" | jq -r '.sdkVersion')
             current_runtime_version=$(echo "$entry" | jq -r '.runtimeVersion')
             alpine_version=$(echo "$entry" | jq -r '.alpineVersion')
 
-            # Get the latest SDK and runtime for the major version
-            latest_sdk_version=$(echo "$latest_versions" | jq -r --arg major "$major_version" '.[$major].sdk // empty')
-            latest_runtime_version=$(echo "$latest_versions" | jq -r --arg major "$major_version" '.[$major].runtime // empty')
+            # Get the latest SDK and runtime for the major.minor version
+            latest_sdk_version=$(echo "$latest_versions" | jq -r --arg ver "$current_net_version" '.[$ver].sdk // empty')
+            latest_runtime_version=$(echo "$latest_versions" | jq -r --arg ver "$current_net_version" '.[$ver].runtime // empty')
 
             # Check if updates are needed
             if [[ -n "$latest_sdk_version" && "$latest_sdk_version" != "$current_sdk_version" ]] || [[ -n "$latest_runtime_version" && "$latest_runtime_version" != "$current_runtime_version" ]]; then
@@ -95,7 +103,9 @@ jobs:
 
           echo "pull_request_branch=${pull_request_branch}" >> $GITHUB_ENV
           echo "pull_request_title=${pull_request_title}" >> $GITHUB_ENV
-          echo "pull_request_body=${pull_request_body}" >> $GITHUB_ENV
+          echo "pull_request_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$pull_request_body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           echo "Prepared pull request details."
 
       - name: Clean up temporary files
@@ -103,6 +113,14 @@ jobs:
         run: |
           rm -f releases-index.json updates.txt
           echo "Removed temporary files."
+
+      - name: Generate GitHub App token
+        if: env.update_needed == 'true'
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Create pull request
         if: env.update_needed == 'true'
@@ -114,7 +132,7 @@ jobs:
           title: ${{ env.pull_request_title }}
           body: |
             Updates the .NET base images to the latest versions:
-            ${{ env.pull_request_body }}
+            ${{ steps.pr-details.outputs.pull_request_body }}
           sign-commits: true
           commit-message: ${{ env.pull_request_title }}
           team-reviewers: ${{ vars.PR_REVIEW_TEAM }}
