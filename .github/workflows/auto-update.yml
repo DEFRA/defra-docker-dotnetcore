@@ -114,6 +114,14 @@ jobs:
           rm -f releases-index.json updates.txt
           echo "Removed temporary files."
 
+      - name: Generate GitHub App token
+        if: env.update_needed == 'true'
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Create pull request
         if: env.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
