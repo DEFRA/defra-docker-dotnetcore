@@ -43,7 +43,7 @@ The image includes the certificate for the internal [CA](https://en.wikipedia.or
 
 ## Versioning
 
-Images should be tagged according to the Dockerfile version and the version of .Net on which the image is based. For example, for Dockerfile version `1.0.0` based on .Net `8.0`, the built image would be tagged `1.0.0-dotnetcore8.0`.
+Images should be tagged according to the Dockerfile version and the version of .NET on which the image is based. For example, for Dockerfile version `1.0.0` based on .NET `8.0`, the built image would be tagged `1.0.0-dotnetcore8.0`.
 
 ## CI/CD
 
