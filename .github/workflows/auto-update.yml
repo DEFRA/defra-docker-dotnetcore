@@ -122,6 +122,12 @@ jobs:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
+      - name: Render PR template
+        id: template
+        uses: chuhlomin/render-template@v1
+        with:
+          template: .github/pull_request_template.md
+
       - name: Create pull request
         if: env.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
@@ -133,6 +139,7 @@ jobs:
           body: |
             Updates the .NET base images to the latest versions:
             ${{ steps.pr-details.outputs.pull_request_body }}
+            ${{ steps.template.outputs.result }}
           sign-commits: true
           commit-message: ${{ env.pull_request_title }}
           team-reviewers: ${{ vars.PR_REVIEW_TEAM }}
