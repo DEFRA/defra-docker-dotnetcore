@@ -12,9 +12,10 @@ This repository contains .NET parent Docker image source code for Defra.
 
 The following table lists the versions of .NET available, and the parent image they are based on:
 
-| .NET version | SDK version | Runtime version | Parent image   |
-| ------------ |-------------|---------------- | -------------- |
-| 8.0          | 8.0.415     | 8.0.21          | 8.0-alpine3.22 |
+| .NET version | SDK version | Runtime version | Parent image    |
+| ------------ |-------------|---------------- | --------------- |
+| 8.0          | 8.0.416     | 8.0.22          | 8.0-alpine3.22  |
+| 10.0         | 10.0.100    | 10.0.0          | 10.0-alpine3.22 |
 
 Two parent images are created from this repository:
 
