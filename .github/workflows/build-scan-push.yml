@@ -82,6 +82,12 @@ jobs:
           --tag ${{steps.setImageDetails.outputs.fullImageName}}
           docker images
 
+      - name: Save image to archive
+        if: ${{ matrix.target == 'production' }}
+        run: |
+          docker save ${{steps.setImageDetails.outputs.fullImageName}} -o image-${{ matrix.image.netVersion }}.tar
+          ls -lh image-${{ matrix.image.netVersion }}.tar
+
       - name: Tag image
         run: |
           echo "Tags are ${{steps.setImageDetails.outputs.dockerTags}}"
@@ -94,9 +100,9 @@ jobs:
       - name: Run Anchore Grype scan
         id: grype-scan
         if: ${{ matrix.target == 'production' }}
-        uses: anchore/scan-action@v6
+        uses: anchore/scan-action@v7
         with:
-          image: ${{steps.setImageDetails.outputs.fullImageName}}
+          image: docker-archive:image-${{ matrix.image.netVersion }}.tar
           fail-build: true
           severity-cutoff: "medium"
         continue-on-error: true
@@ -104,9 +110,10 @@ jobs:
       - name: Run Aqua Trivy scan
         id: trivy-scan
         if: ${{ matrix.target == 'production' }}
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
-          image-ref: ${{steps.setImageDetails.outputs.fullImageName}}
+          input: image-${{ matrix.image.netVersion }}.tar
+          scan-type: image
           format: sarif
           output: trivy-reports-dotnet-${{ matrix.image.netVersion }}
           exit-code: 1
@@ -132,6 +139,8 @@ jobs:
         if: ${{ (steps.grype-scan.outcome == 'failure' || steps.trivy-scan.outcome == 'failure') && matrix.target == 'production' }}
         run: |
           echo "One or more scans failed. Failing the build."
+          echo "Grype scan outcome: ${{ steps.grype-scan.outcome }}"
+          echo "Trivy scan outcome: ${{ steps.trivy-scan.outcome }}"
           exit 1
 
       - name: Login to DockerHub
