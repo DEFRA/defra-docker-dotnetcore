@@ -1,5 +1,5 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.11.2
+ARG DEFRA_VERSION=1.11.3
 ARG BASE_VERSION=10.0-alpine3.22
 
 # Extend Alpine variant of ASP.NET base image for small image size
