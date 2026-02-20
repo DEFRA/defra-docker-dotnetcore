@@ -14,8 +14,8 @@ The following table lists the versions of .NET available, and the parent image t
 
 | .NET version | SDK version | Runtime version | Parent image    |
 | ------------ |-------------|---------------- | --------------- |
-| 8.0          | 8.0.416     | 8.0.22          | 8.0-alpine3.22  |
-| 10.0          | 10.0.101     | 10.0.1          | 10.0-alpine3.22 |
+| 8.0          | 8.0.418     | 8.0.24          | 8.0-alpine3.23  |
+| 10.0          | 10.0.103     | 10.0.3          | 10.0-alpine3.23 |
 
 Two parent images are created from this repository:
 
