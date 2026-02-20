@@ -1,6 +1,6 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=1.11.2
-ARG BASE_VERSION=10.0-alpine3.22
+ARG DEFRA_VERSION=2.0.0
+ARG BASE_VERSION=10.0-alpine3.23
 
 # Extend Alpine variant of ASP.NET base image for small image size
 FROM mcr.microsoft.com/dotnet/aspnet:$BASE_VERSION AS production
@@ -51,11 +51,6 @@ RUN apk add --no-cache bash ca-certificates curl procps unzip
 # Install .NET debugger to support debugging in a container
 ADD https://aka.ms/getvsdbgsh /tmp/getvsdbgsh
 RUN /bin/sh /tmp/getvsdbgsh -v latest -l /vsdbg && rm /tmp/getvsdbgsh
-
-# Add Pact Contract testing dependencies
-ADD https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
-ADD https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk glibc-2.35-r1.apk
-RUN apk add --no-cache glibc-2.35-r1.apk
 
 # Install Internal CA certificate for firewall and Zscaler proxy
 COPY certificates/internal-ca.crt /usr/local/share/ca-certificates/internal-ca.crt
