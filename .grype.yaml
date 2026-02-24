@@ -1,3 +1,5 @@
 ignore:
   - vulnerability: CVE-2025-60876
     reason: "Alpine BusyBox: No fix available"
+  - vulnerability: CVE-2026-27171
+    reason: "Alpine zlib: No fix available"
