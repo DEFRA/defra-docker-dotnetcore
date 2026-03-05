@@ -2,7 +2,7 @@
 # and defra-dotnetcore-development tagged with a version.
 
 # Allow parent image version to be set at build time
-ARG PARENT_VERSION=1.9.1-dotnet8.0
+ARG PARENT_VERSION=1.10.1-dotnet8.0
 
 # Development stage, used the build the app and provide testing tools
 FROM defra-dotnetcore-development:$PARENT_VERSION AS development
@@ -54,7 +54,7 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy the compiled app from the development build stage
-COPY --from=development /home/dotnet/out/ ./
+COPY --from=development --chown=root:root /home/dotnet/out/ ./ && chmod -R a-w /home/dotnet
 
 # Set the default command for production to run the compiled app.
 CMD ["dotnet", "exampleService.dll"]
