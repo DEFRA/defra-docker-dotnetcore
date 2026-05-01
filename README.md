@@ -50,7 +50,7 @@ Images should be tagged according to the Dockerfile version and the version of .
 
 On commit GitHub Actions will build both `dotnetcore` and `dotnetcore-development` images for the .NET versions listed in the [image-matrix.json](image-matrix.json) file, and perform a vulnerability scan, as described below. 
 
-In addition a commit to the master branch will push the images to the `defradigital` organisation in GitHub using the version tag specified in the [JOB.env](JOB.env) file. The version is expected to be manually updated on each release.
+In addition a commit to the main branch will push the images to the `defradigital` organisation in GitHub using the version tag specified in the [JOB.env](JOB.env) file. The version is expected to be manually updated on each release.
 
 The .NET version marked as latest in the [image-matrix.json](image-matrix.json) will be tagged as the latest image in Docker Hub.
 
