@@ -11,7 +11,7 @@ jobs:
     outputs:
       image: ${{ steps.set-var.outputs.image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - id: set-var
         run: |
           echo 'image<<EOF' >> $GITHUB_OUTPUT
@@ -26,14 +26,14 @@ jobs:
       matrix:
         image: ${{fromJSON(needs.get-matrix-values.outputs.image)}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Set job environment variables
         run:  cat JOB.env >> $GITHUB_ENV
 
       - name: Run Anchore Grype scan
         id: grype-scan
-        uses: anchore/scan-action@v6
+        uses: anchore/scan-action@1638637db639e0ade3258b51db49a9a137574c3e # v6
         with:
           image: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
           fail-build: true
@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Aqua Trivy scan
         id: trivy-scan
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: defradigital/${{env.IMAGE_NAME}}:${{env.DEFRA_VERSION}}-dotnet${{matrix.image.netVersion}}
           format: sarif
@@ -54,14 +54,14 @@ jobs:
 
       - name: Upload Grype SARIF report
         if: ${{ steps.grype-scan.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: grype-reports-dotnet-${{ matrix.image.netVersion }}
           path: ${{ steps.grype-scan.outputs.sarif }}
 
       - name: Upload Trivy SARIF report
         if: ${{ steps.trivy-scan.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: trivy-reports-dotnet-${{ matrix.image.netVersion }}
           path: trivy-reports-dotnet-${{ matrix.image.netVersion }}
