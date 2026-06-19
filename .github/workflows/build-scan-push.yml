@@ -9,6 +9,8 @@ jobs:
 
   get-matrix-values:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       image: ${{ steps.set-var.outputs.image }}
     steps:
@@ -21,6 +23,8 @@ jobs:
   
   build-images:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:  get-matrix-values
     strategy:
       fail-fast: false
@@ -186,6 +190,8 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: build-images
     steps:
     - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
