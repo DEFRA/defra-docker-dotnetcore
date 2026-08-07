@@ -14,7 +14,7 @@ The following table lists the versions of .NET available, and the parent image t
 
 | .NET version | SDK version | Runtime version | Parent image    |
 | ------------ |-------------|---------------- | --------------- |
-| 8.0          | 8.0.420     | 8.0.26          | 8.0-alpine3.24 |
+| 8.0          | 8.0.423     | 8.0.29          | 8.0-alpine3.24 |
 | 10.0          | 10.0.302     | 10.0.10          | 10.0-alpine3.24 |
 
 Two parent images are created from this repository:
@@ -56,9 +56,11 @@ The .NET version marked as latest in the [image-matrix.json](image-matrix.json) 
 
 ## Image vulnerability scanning
 
-A GitHub Action runs a nightly scan of the images published to Docker using [Anchore Grype](https://github.com/anchore/grype/) and [Aqua Trivy](https://www.aquasec.com/products/trivy/). The latest images for each supported Node.js version are scanned.
+A GitHub Action runs a nightly scan of the images published to Docker using [Anchore Grype](https://github.com/anchore/grype/) and [Aqua Trivy](https://www.aquasec.com/products/trivy/). The latest images for each supported .NET version are scanned.
 
 New images are also scanned before release on any push to a branch.
+
+Both scanners report their findings, and a single policy, [vulnerability-policy.yml](vulnerability-policy.yml), decides what blocks a build. By default that is anything of medium severity or above with a fix available.
 
 This ensures Defra services that use the parent images are starting from a known secure foundation, and can limit patching to only newly added libraries.
 
@@ -66,9 +68,11 @@ For more details see [Image Scanning](IMAGE_SCANNING.md)
 
 ## Automated version updates
 
-The [auto-update](/.github/workflows/auto-update.yml) workflow runs nightly to check for new versions of Node.js and their associated Alpine images. If a new version is found, the workflow will create a pull request to update to the latest version.
+The [auto-update](/.github/workflows/auto-update.yml) workflow runs nightly to check for new .NET SDK and runtime versions and for new digests of the Alpine base images. If anything has moved, the workflow opens a pull request, and merges it automatically once the vulnerability policy gate passes.
 
-These updates are scoped to the Node.js versions listed in the [image-matrix.json](image-matrix.json) file.
+These updates are scoped to the .NET versions listed in the [image-matrix.json](image-matrix.json) file.
+
+The base images are pinned by digest as well as by tag, so rebuilding an unchanged commit produces the same image.
 
 ## Building images locally
 
