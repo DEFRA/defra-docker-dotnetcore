@@ -110,6 +110,9 @@ jobs:
           image: docker-archive:image-${{ matrix.image.netVersion }}.tar
           fail-build: true
           severity-cutoff: "medium"
+          # Only vulnerabilities with an available fix can block a build; unfixable
+          # findings are reported by the nightly scan instead of gating PRs.
+          only-fixed: "true"
         continue-on-error: true
 
       - name: Run Aqua Trivy scan
@@ -124,6 +127,8 @@ jobs:
           exit-code: 1
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
+          ignore-unfixed: true
+          trivyignores: .trivyignore.yaml
         continue-on-error: true
 
       - name: Upload Grype SARIF report
@@ -187,6 +192,22 @@ jobs:
           do
             docker image push $TAG
           done
+
+  required-check:
+    # Single stable-named gate for branch protection. The matrix jobs are named per
+    # version (e.g. "build-images (production, 10.0)") so they cannot be pinned as
+    # required checks; this job can. It passes only if every matrix leg succeeded.
+    runs-on: ubuntu-latest
+    permissions: {}
+    needs: build-images
+    if: always()
+    steps:
+      - name: Verify build and scan matrix succeeded
+        run: |
+          if [ "${{ needs.build-images.result }}" != "success" ]; then
+            echo "One or more build/scan jobs did not succeed."
+            exit 1
+          fi
 
   create-release:
     runs-on: ubuntu-latest

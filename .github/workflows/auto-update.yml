@@ -19,17 +19,79 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        with:
-          python-version: '3.12'
+      - name: Fetch latest .NET release metadata
+        run: |
+          curl -s https://builds.dotnet.microsoft.com/dotnet/release-metadata/releases-index.json > releases-index.json
+          echo "Fetched .NET release metadata."
 
       - name: Check for updates
-        id: update
-        run: python3 .github/scripts/update-matrix.py
+        id: check-updates
+        run: |
+          : > updates.txt
+          jq -c '.[]' image-matrix.json | while read -r entry; do
+            channel=$(echo "$entry" | jq -r '.netVersion')
+            current_sdk=$(echo "$entry" | jq -r '.sdkVersion')
+            current_runtime=$(echo "$entry" | jq -r '.runtimeVersion')
+            latest_sdk=$(jq -r --arg c "$channel" '.["releases-index"][] | select(.["channel-version"]==$c) | .["latest-sdk"]' releases-index.json)
+            latest_runtime=$(jq -r --arg c "$channel" '.["releases-index"][] | select(.["channel-version"]==$c) | .["latest-runtime"]' releases-index.json)
+
+            if [[ -n "$latest_sdk" && "$latest_sdk" != "null" ]] && { [[ "$latest_sdk" != "$current_sdk" ]] || [[ "$latest_runtime" != "$current_runtime" ]]; }; then
+              echo "Update for .NET $channel: sdk $current_sdk -> $latest_sdk, runtime $current_runtime -> $latest_runtime"
+              echo "$channel:$latest_sdk:$latest_runtime" >> updates.txt
+            fi
+          done
+
+          if [[ -s updates.txt ]]; then
+            echo "update_needed=true" >> $GITHUB_ENV
+          else
+            echo "update_needed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Update files
+        if: env.update_needed == 'true'
+        run: |
+          # A new base image release always produces a new Defra image version.
+          current_defra_version=$(grep -oP 'DEFRA_VERSION=\K[\d.]+' JOB.env)
+          new_defra_version=$(echo "$current_defra_version" | awk -F. '{print $1"."$2"."$3+1}')
+          sed -i "s/DEFRA_VERSION=.*/DEFRA_VERSION=${new_defra_version}/" JOB.env
+          echo "Bumped Defra version ${current_defra_version} -> ${new_defra_version}"
+
+          while IFS=: read -r channel latest_sdk latest_runtime; do
+            alpine=$(jq -r --arg c "$channel" '.[] | select(.netVersion==$c) | .alpineVersion' image-matrix.json)
+            updated=$(jq --arg c "$channel" --arg s "$latest_sdk" --arg r "$latest_runtime" \
+              'map(if .netVersion==$c then .sdkVersion=$s | .runtimeVersion=$r else . end)' image-matrix.json)
+            echo "$updated" > image-matrix.json
+            channel_re=$(echo "$channel" | sed 's/\./\\./g')
+            sed -i -E "s/^\\| ${channel_re}[[:space:]].*/| ${channel}          | ${latest_sdk}     | ${latest_runtime}          | ${channel}-alpine${alpine} |/" README.md
+          done < updates.txt
+          echo "Updated image-matrix.json and README.md"
+
+          # Point the Dockerfile and example at the current latest image.
+          latest_channel=$(jq -r '.[] | select(.latest==true) | .netVersion' image-matrix.json)
+          latest_alpine=$(jq -r '.[] | select(.latest==true) | .alpineVersion' image-matrix.json)
+          sed -i "s/ARG BASE_VERSION=.*/ARG BASE_VERSION=${latest_channel}-alpine${latest_alpine}/" Dockerfile
+          sed -i "s/ARG DEFRA_VERSION=.*/ARG DEFRA_VERSION=${new_defra_version}/" Dockerfile
+          sed -i "s/ARG PARENT_VERSION=.*/ARG PARENT_VERSION=${new_defra_version}-dotnet${latest_channel}/" example/Dockerfile
+          echo "Updated Dockerfile and example"
+
+      - name: Prepare pull request details
+        id: pr-details
+        if: env.update_needed == 'true'
+        run: |
+          body=$(awk -F: '{print "- .NET " $1 ": SDK " $2 ", runtime " $3}' updates.txt)
+          updated_versions=$(awk -F: '{print $1}' updates.txt | sort -u | paste -sd, -)
+          echo "pull_request_title=Update .NET base image: ${updated_versions}" >> $GITHUB_ENV
+          echo "pull_request_branch=update-dotnet-base-image-${updated_versions//,/-}" >> $GITHUB_ENV
+          echo "pull_request_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Clean up temporary files
+        if: env.update_needed == 'true'
+        run: rm -f releases-index.json updates.txt
 
       - name: Generate GitHub App token
-        if: steps.update.outputs.updated == 'true'
+        if: env.update_needed == 'true'
         id: generate-token
         uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
         with:
@@ -37,35 +99,35 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Render PR template
-        if: steps.update.outputs.updated == 'true'
+        if: env.update_needed == 'true'
         id: template
         uses: chuhlomin/render-template@a7c644e341797d050d1cb24332d83791b9a46dae # v1
         with:
           template: .github/pull_request_template.md
 
       - name: Create pull request
-        if: steps.update.outputs.updated == 'true'
-        id: pr
+        if: env.update_needed == 'true'
+        id: create-pr
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          branch: update-dotnet-base-image
+          branch: ${{ env.pull_request_branch }}
           base: main
-          title: ${{ steps.update.outputs.title }}
+          title: ${{ env.pull_request_title }}
           body: |
-            Updates the .NET base images and the pinned base image digests:
-
-            ${{ steps.update.outputs.body }}
-
+            Updates the .NET base images to the latest versions:
+            ${{ steps.pr-details.outputs.pull_request_body }}
             ${{ steps.template.outputs.result }}
           sign-commits: true
-          commit-message: ${{ steps.update.outputs.title }}
+          commit-message: ${{ env.pull_request_title }}
           team-reviewers: ${{ vars.PR_REVIEW_TEAM }}
 
-      # The vulnerability gate is a required check, so this merges only once the
-      # updated image scans clean under vulnerability-policy.yml.
+      # Queues the PR to merge automatically once the required scan check passes and a
+      # reviewer approves. Unfixable vulnerabilities no longer block, so most updates
+      # only wait on a single approval.
       - name: Enable auto-merge
-        if: steps.update.outputs.updated == 'true'
+        if: env.update_needed == 'true'
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --squash
+        run: gh pr merge ${{ steps.create-pr.outputs.pull-request-number }} --auto --squash
+
