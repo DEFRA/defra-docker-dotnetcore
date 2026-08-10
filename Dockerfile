@@ -1,12 +1,9 @@
 # Set default values for build arguments
-ARG DEFRA_VERSION=2.1.2
+ARG DEFRA_VERSION=2.1.1
 ARG BASE_VERSION=10.0-alpine3.24
-# Pinned by digest so a rebuild of the same commit produces the same image
-ARG RUNTIME_DIGEST=sha256:eb7c0c9ef04479bfff191036f6b8959a7d6bac983bd7160c6b8b84b20d3ad0e7
-ARG SDK_DIGEST=sha256:979da27fc87dc255f4675b7642556cdcba9307459f8891f85f3cc26edcd7e766
 
 # Extend Alpine variant of ASP.NET base image for small image size
-FROM mcr.microsoft.com/dotnet/aspnet:$BASE_VERSION@$RUNTIME_DIGEST AS production
+FROM mcr.microsoft.com/dotnet/aspnet:$BASE_VERSION AS production
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION
@@ -36,7 +33,7 @@ LABEL uk.gov.defra.dotnetcore.dotnet-version=$BASE_VERSION \
       uk.gov.defra.dotnetcore.repository=defradigital/dotnetcore
 
 # Extend Alpine variant of .Net Core SDK base image for small image size
-FROM mcr.microsoft.com/dotnet/sdk:$BASE_VERSION@$SDK_DIGEST AS development
+FROM mcr.microsoft.com/dotnet/sdk:$BASE_VERSION AS development
 
 ARG DEFRA_VERSION
 ARG BASE_VERSION
