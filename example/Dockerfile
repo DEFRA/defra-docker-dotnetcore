@@ -35,8 +35,11 @@ EXPOSE ${PORT}
 
 # Exec form needs a script to interpolate ${PORT}; the script itself execs dotnet so it still
 #   receives signals directly rather than a shell.
-COPY --chown=dotnet:dotnet dev-entrypoint.sh ./
+# Root-owned so the dotnet user can't modify its own startup script; switch back afterwards.
+USER root
+COPY --chown=root:root dev-entrypoint.sh ./
 RUN chmod +x ./dev-entrypoint.sh
+USER dotnet
 CMD ["./dev-entrypoint.sh"]
 
 # Production stage
