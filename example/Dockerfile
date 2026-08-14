@@ -33,9 +33,11 @@ ARG PORT=3000
 ENV PORT=${PORT}
 EXPOSE ${PORT}
 
-# Set the default command for development to run a file watcher.
-# Use shell form so environment variables are interpreted.
-CMD dotnet watch --project ./exampleService run --urls "http://*:${PORT}"
+# Exec form needs a script to interpolate ${PORT}; the script itself execs dotnet so it still
+#   receives signals directly rather than a shell.
+COPY --chown=dotnet:dotnet dev-entrypoint.sh ./
+RUN chmod +x ./dev-entrypoint.sh
+CMD ["./dev-entrypoint.sh"]
 
 # Production stage
 FROM defradigital/dotnetcore:$PARENT_VERSION AS production
