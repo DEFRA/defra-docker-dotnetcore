@@ -1,7 +1,3 @@
-# This uses the published Defra .NET parent images from Docker Hub:
-# https://github.com/DEFRA/defra-docker-dotnetcore
-
-# Allow parent image version to be set at build time
 ARG PARENT_VERSION=2.1.6-dotnet10.0
 
 # Development stage, used the build the app and provide testing tools
