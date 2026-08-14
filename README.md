@@ -62,6 +62,34 @@ A build is only blocked by vulnerabilities that have a fix available, so unpatch
 
 For more details see [Image Scanning](IMAGE_SCANNING.md)
 
+## Software Bill of Materials (SBOM)
+
+On every push to `main`, each production image variant has an SBOM generated from its actual container contents using [Syft](https://github.com/anchore/syft) (via [anchore/sbom-action](https://github.com/anchore/sbom-action)), which is:
+
+- submitted to this repository's Dependency graph, so vulnerable OS packages and runtime dependencies show up alongside Dependabot alerts, and
+- uploaded as a downloadable workflow artifact for that run.
+
+The image pushed to Docker Hub also carries the same SBOM as a build attestation (`docker buildx build --sbom=true`). You can inspect it directly from the published image without pulling it:
+
+```
+docker buildx imagetools inspect defradigital/dotnetcore:<tag> --format '{{json (index .SBOM "linux/amd64").SPDX}}'
+```
+
+### Retiring a version
+
+Each supported .NET version submits its SBOM to the Dependency Graph under its own correlator
+(`docker-image-dotnet-<version>`), and GitHub only ever shows the *latest* submission for a
+given correlator. So if a version is simply deleted from [image-matrix.json](image-matrix.json)
+once it drops out of LTS, nothing ever submits again for that correlator, and the Dependency
+Graph (and any Dependabot alerts derived from it) would keep showing that version's packages
+forever, frozen at whatever they were on its last build.
+
+To retire a version cleanly, run [`scripts/retire-version.sh`](scripts/retire-version.sh) with
+the .NET version, e.g. `./scripts/retire-version.sh 8.0`. It removes the version from
+`image-matrix.json` and the table above, and submits an empty snapshot for that version's
+correlator to clear it from the Dependency Graph. Review the resulting diff, then commit it and
+open a PR as normal. Requires `jq` and an authenticated `gh` CLI.
+
 ## Automated version updates
 
 The [auto-update](/.github/workflows/auto-update.yml) workflow runs nightly. It checks the .NET release metadata for new SDK and runtime releases on each supported channel, and when it finds one it opens a pull request that bumps the affected versions across the [image-matrix.json](image-matrix.json), [JOB.env](JOB.env), [Dockerfile](Dockerfile), [README.md](README.md) and the [example](example).
