@@ -62,6 +62,24 @@ A build is only blocked by vulnerabilities that have a fix available, so unpatch
 
 For more details see [Image Scanning](IMAGE_SCANNING.md)
 
+## Software Bill of Materials (SBOM)
+
+On every push to `main`, each production image variant has an SBOM generated from its actual container contents using [Syft](https://github.com/anchore/syft) (via [anchore/sbom-action](https://github.com/anchore/sbom-action)), which is:
+
+- submitted to this repository's [Dependency graph](../../network/dependencies), so vulnerable OS packages and runtime dependencies show up alongside Dependabot alerts, and
+- uploaded as a downloadable workflow artifact for that run.
+
+The image pushed to Docker Hub also carries the same SBOM as a build attestation (`docker buildx build --sbom=true`). You can inspect it directly from the published image without pulling it:
+
+```
+docker buildx imagetools inspect defradigital/dotnetcore:<tag> --format '{{json (index .SBOM "linux/amd64").SPDX}}'
+```
+
+Known limitations:
+
+- Alpine/APK packages are listed under GitHub's generic "Other" ecosystem in the Dependency graph. This isn't configurable on our side — GitHub has no dedicated APK/Alpine ecosystem, unlike NuGet.
+- If a .NET version is dropped from [image-matrix.json](image-matrix.json) (as happened previously for .NET 6), its Dependency graph entry and its last-published Docker Hub tag both freeze at their final state permanently. Neither is deleted automatically; there is no API to expire a Dependency graph snapshot.
+
 ## Automated version updates
 
 The [auto-update](/.github/workflows/auto-update.yml) workflow runs nightly. It checks the .NET release metadata for new SDK and runtime releases on each supported channel, and when it finds one it opens a pull request that bumps the affected versions across the [image-matrix.json](image-matrix.json), [JOB.env](JOB.env), [Dockerfile](Dockerfile), [README.md](README.md) and the [example](example).

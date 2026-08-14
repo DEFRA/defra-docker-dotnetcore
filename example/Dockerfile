@@ -2,7 +2,7 @@
 # and defra-dotnetcore-development tagged with a version.
 
 # Allow parent image version to be set at build time
-ARG PARENT_VERSION=2.1.5-dotnet10.0
+ARG PARENT_VERSION=2.1.6-dotnet10.0
 
 # Development stage, used the build the app and provide testing tools
 FROM defra-dotnetcore-development:$PARENT_VERSION AS development
@@ -37,7 +37,9 @@ EXPOSE ${PORT}
 
 # Set the default command for development to run a file watcher.
 # Use shell form so environment variables are interpreted.
-CMD dotnet watch --project ./exampleService run --urls http://*:${PORT}
+# NOSONAR: plain http:// is the dotnet watch dev-server bind inside the container, not an
+#   externally reachable endpoint, so TLS certs here would add complexity for no benefit.
+CMD dotnet watch --project ./exampleService run --urls "http://*:${PORT}"
 
 # Production stage
 FROM defra-dotnetcore:$PARENT_VERSION AS production
@@ -53,8 +55,16 @@ ARG PORT=3000
 ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
-# Copy the compiled app from the development build stage
-COPY --from=development /home/dotnet/out/ ./
+# Switch to root temporarily to lock down file permissions.
+USER root
+
+# Copy the compiled app from the development build stage, assigning root ownership to
+#   prevent modification by other users.
+COPY --from=development --chown=root:root /home/dotnet/out/ ./
+
+# Remove write permissions, then drop back to the unprivileged user.
+RUN chmod -R a-w /home/dotnet
+USER dotnet
 
 # Set the default command for production to run the compiled app.
 CMD ["dotnet", "exampleService.dll"]
