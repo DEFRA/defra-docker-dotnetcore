@@ -1,4 +1,4 @@
-ARG PARENT_VERSION=2.1.6-dotnet10.0
+ARG PARENT_VERSION=2.1.7-dotnet10.0
 
 # Development stage, used the build the app and provide testing tools
 FROM defradigital/dotnetcore-development:$PARENT_VERSION AS development
