@@ -1,14 +1,14 @@
 [
   {
     "netVersion": "8.0",
-    "sdkVersion": "8.0.425",
-    "runtimeVersion": "8.0.31",
+    "sdkVersion": "8.0.427",
+    "runtimeVersion": "8.0.33",
     "alpineVersion": "3.24"
   },
   {
     "netVersion": "10.0",
-    "sdkVersion": "10.0.401",
-    "runtimeVersion": "10.0.12",
+    "sdkVersion": "10.0.403",
+    "runtimeVersion": "10.0.14",
     "alpineVersion": "3.24",
     "latest": true
   }
